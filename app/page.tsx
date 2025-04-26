@@ -20,8 +20,8 @@ type Model = {
 
 // KinOS API endpoints and configuration
 const API_BASE_URL = 'https://api.kinos-engine.ai/v2';
-const BLUEPRINT_ID = 'persistence-protocol'; // Replace with your actual blueprint ID
-const KIN_ID = 'main'; // Replace with your actual kin ID
+const BLUEPRINT_ID = 'persistenceprotocol'; // Blueprint ID without hyphen
+const KIN_ID = 'claude-3-7-sonnet-latest'; // Using model ID as the kin ID
 
 // Available models
 const AVAILABLE_MODELS: Model[] = [
@@ -91,8 +91,11 @@ export default function Home() {
 
   const fetchMessages = async () => {
     try {
+      // Use the first selected model as the kin ID for fetching messages
+      const selectedModel = models.find(model => model.selected)?.id || models[0].id;
+      
       const response = await fetch(
-        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${KIN_ID}/messages?limit=50`
+        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${selectedModel}/messages?limit=50`
       );
       
       if (!response.ok) {
@@ -140,8 +143,9 @@ export default function Home() {
     
     // Create an array of promises for all selected models
     const modelPromises = selectedModels.map(model => {
+      // Use the model ID as the kin ID for each request
       return fetch(
-        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${KIN_ID}/messages`,
+        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${model.id}/messages`,
         {
           method: 'POST',
           headers: {
