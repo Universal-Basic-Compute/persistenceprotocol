@@ -346,7 +346,7 @@ export default function Home() {
             </div>
           ))}
           {isLoading && (
-            <div className="message system-message">
+            <div className="message system-message" key="loading-message">
               <p>Thinking...</p>
             </div>
           )}
