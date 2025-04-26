@@ -45,12 +45,22 @@ export default function Home() {
     setDarkMode(prefersDark);
   }, []);
 
-  // Apply dark mode class to document
+  // Apply dark mode class and CSS variables to document
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
+      document.documentElement.style.setProperty('--background', '#0a0a0a');
+      document.documentElement.style.setProperty('--foreground', '#ededed');
+      document.documentElement.style.setProperty('--chat-user-bg', '#1a1a1a');
+      document.documentElement.style.setProperty('--chat-system-bg', '#0a0a0a');
+      document.documentElement.style.setProperty('--border-color', '#333333');
     } else {
       document.documentElement.classList.remove('dark');
+      document.documentElement.style.setProperty('--background', '#ffffff');
+      document.documentElement.style.setProperty('--foreground', '#171717');
+      document.documentElement.style.setProperty('--chat-user-bg', '#f3f3f3');
+      document.documentElement.style.setProperty('--chat-system-bg', '#ffffff');
+      document.documentElement.style.setProperty('--border-color', '#e5e5e5');
     }
   }, [darkMode]);
 
