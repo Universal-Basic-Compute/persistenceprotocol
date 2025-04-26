@@ -3,6 +3,9 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --chat-user-bg: #f3f3f3;
+  --chat-system-bg: #ffffff;
+  --border-color: #e5e5e5;
 }
 
 @theme inline {
@@ -16,6 +19,9 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --chat-user-bg: #1a1a1a;
+    --chat-system-bg: #0a0a0a;
+    --border-color: #333333;
   }
 }
 
@@ -23,4 +29,71 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.chat-container {
+  max-width: 800px;
+  margin: 0 auto;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.messages-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+}
+
+.message {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.25rem;
+  max-width: 80%;
+}
+
+.user-message {
+  background-color: var(--chat-user-bg);
+  margin-left: auto;
+}
+
+.system-message {
+  background-color: var(--chat-system-bg);
+  border: 1px solid var(--border-color);
+  margin-right: auto;
+}
+
+.input-container {
+  display: flex;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.message-input {
+  flex-grow: 1;
+  padding: 0.75rem;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  background: var(--background);
+  color: var(--foreground);
+  resize: none;
+}
+
+.send-button {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--foreground);
+  color: var(--background);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.send-button:hover {
+  opacity: 0.9;
 }
