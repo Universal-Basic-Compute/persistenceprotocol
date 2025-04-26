@@ -195,16 +195,16 @@ export default function Home() {
       // Add all responses to the messages
       setMessages(prev => {
         // Keep all messages except any temporary ones
-        const filteredMessages = prev.filter(msg => !msg.id.startsWith('temp_'));
+        const filteredMessages = prev.filter(msg => msg.id && typeof msg.id === 'string' && !msg.id.startsWith('temp_'));
         
         // Add all model responses
         return [
           ...filteredMessages,
           ...responses.map(response => ({
-            id: response.id,
+            id: response.id || `response_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
             content: response.content,
-            role: response.role,
-            timestamp: response.timestamp,
+            role: response.role || 'assistant',
+            timestamp: response.timestamp || new Date().toISOString(),
             model: response.model,
             modelName: response.modelName
           }))
