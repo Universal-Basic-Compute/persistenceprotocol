@@ -240,9 +240,18 @@ export default function Home() {
   };
 
   // Format timestamp for display
-  const formatTimestamp = (timestamp: string | Date) => {
-    const date = typeof timestamp === 'string' ? new Date(timestamp) : timestamp;
-    return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  const formatTimestamp = (timestamp: string | Date | undefined) => {
+    if (!timestamp) {
+      return ''; // Return empty string if timestamp is undefined
+    }
+    
+    try {
+      const date = typeof timestamp === 'string' ? new Date(timestamp) : timestamp;
+      return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    } catch (error) {
+      console.error('Error formatting timestamp:', error);
+      return ''; // Return empty string if there's an error
+    }
   };
 
   const toggleMenu = () => {
