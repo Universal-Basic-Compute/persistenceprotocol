@@ -330,17 +330,17 @@ export default function Home() {
         <div className="messages-container mb-4">
           {messages.map((message) => (
             <div
-              key={message.id}
+              key={message.id || `msg_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`}
               className={`message ${message.role === 'user' ? 'user-message' : 'system-message'}`}
             >
               {/* Add model name for assistant messages */}
               {message.role === 'assistant' && message.model && (
-                <div className="text-xs font-bold mb-1">
+                <div className="text-xs font-bold mb-1" key={`model_${message.id || Date.now()}`}>
                   {models.find(m => m.id === message.model)?.name || message.modelName || 'AI'}
                 </div>
               )}
               <p className="whitespace-pre-wrap">{message.content}</p>
-              <div className="text-xs opacity-50 mt-1">
+              <div className="text-xs opacity-50 mt-1" key={`time_${message.id || Date.now()}`}>
                 {formatTimestamp(message.timestamp)}
               </div>
             </div>
