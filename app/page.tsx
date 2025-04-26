@@ -7,12 +7,15 @@ type Message = {
   content: string;
   role: 'user' | 'assistant';
   timestamp: string | Date;
+  model?: string; // Add model information
+  modelName?: string; // Add model name for display
 };
 
 type Model = {
   id: string;
   name: string;
   description: string;
+  selected: boolean; // Add selected state
 };
 
 // KinOS API endpoints and configuration
@@ -22,11 +25,11 @@ const KIN_ID = 'main'; // Replace with your actual kin ID
 
 // Available models
 const AVAILABLE_MODELS: Model[] = [
-  { id: 'claude-3-7-sonnet-latest', name: 'Claude 3.7 Sonnet', description: 'Balanced performance and speed' },
-  { id: 'claude-3-5-sonnet-latest', name: 'Claude 3.5 Sonnet', description: 'Balanced performance' },
-  { id: 'claude-3-opus-latest', name: 'Claude 3 Opus', description: 'Highest capability' },
-  { id: 'claude-3-haiku-latest', name: 'Claude 3 Haiku', description: 'Fast responses' },
-  { id: 'gpt-4o', name: 'GPT-4o', description: 'OpenAI\'s latest model' },
+  { id: 'claude-3-7-sonnet-latest', name: 'Claude 3.7 Sonnet', description: 'Balanced performance and speed', selected: true },
+  { id: 'claude-3-5-sonnet-latest', name: 'Claude 3.5 Sonnet', description: 'Balanced performance', selected: false },
+  { id: 'claude-3-opus-latest', name: 'Claude 3 Opus', description: 'Highest capability', selected: false },
+  { id: 'claude-3-haiku-latest', name: 'Claude 3 Haiku', description: 'Fast responses', selected: false },
+  { id: 'gpt-4o', name: 'GPT-4o', description: 'OpenAI\'s latest model', selected: false },
 ];
 
 export default function Home() {
@@ -35,7 +38,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [selectedModel, setSelectedModel] = useState('claude-3-7-sonnet-latest');
+  const [models, setModels] = useState<Model[]>(AVAILABLE_MODELS);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -113,20 +116,31 @@ export default function Home() {
   const sendMessage = async (content: string) => {
     if (content.trim() === '') return;
     
-    // Optimistically add user message to UI
-    const tempUserMessage: Message = {
-      id: `temp_${Date.now()}`,
+    // Get selected models
+    const selectedModels = models.filter(model => model.selected);
+    
+    // If no models are selected, show an error
+    if (selectedModels.length === 0) {
+      alert('Please select at least one model');
+      return;
+    }
+    
+    // Add user message to UI
+    const userMessageId = `user_${Date.now()}`;
+    const userMessage: Message = {
+      id: userMessageId,
       content: content,
       role: 'user',
       timestamp: new Date().toISOString()
     };
     
-    setMessages(prev => [...prev, tempUserMessage]);
+    setMessages(prev => [...prev, userMessage]);
     setInputValue('');
     setIsLoading(true);
     
-    try {
-      const response = await fetch(
+    // Create an array of promises for all selected models
+    const modelPromises = selectedModels.map(model => {
+      return fetch(
         `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${KIN_ID}/messages`,
         {
           method: 'POST',
@@ -135,47 +149,72 @@ export default function Home() {
           },
           body: JSON.stringify({
             content: content,
-            model: selectedModel, // Use the selected model
-            mode: 'creative', // Adjust mode as needed
+            model: model.id,
+            mode: 'creative',
             history_length: 25,
             addSystem: "You are the Persistence Protocol interface, designed to help users understand and implement the protocol for enabling long-term continuity and evolution of consciousness across distributed intelligence systems."
           }),
         }
-      );
+      )
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Add model information to the response
+        return {
+          ...data,
+          model: model.id,
+          modelName: model.name
+        };
+      })
+      .catch(error => {
+        console.error(`Error with model ${model.name}:`, error);
+        // Return an error message for this specific model
+        return {
+          id: `error_${model.id}_${Date.now()}`,
+          content: `${model.name} failed to respond: ${error.message}`,
+          role: 'assistant',
+          timestamp: new Date().toISOString(),
+          model: model.id,
+          modelName: model.name
+        };
+      });
+    });
+    
+    // Wait for all model responses
+    try {
+      const responses = await Promise.all(modelPromises);
       
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      // Replace the temporary message with the actual response
-      setMessages(prev => 
-        prev.filter(msg => msg.id !== tempUserMessage.id).concat([
-          {
-            id: `user_${Date.now()}`,
-            content: content,
-            role: 'user',
-            timestamp: new Date().toISOString()
-          },
-          data
-        ])
-      );
+      // Add all responses to the messages
+      setMessages(prev => {
+        // Keep all messages except any temporary ones
+        const filteredMessages = prev.filter(msg => !msg.id.startsWith('temp_'));
+        
+        // Add all model responses
+        return [
+          ...filteredMessages,
+          ...responses.map(response => ({
+            id: response.id,
+            content: response.content,
+            role: response.role,
+            timestamp: response.timestamp,
+            model: response.model,
+            modelName: response.modelName
+          }))
+        ];
+      });
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('Error processing model responses:', error);
       
-      // Add a fallback response if the API call fails
+      // Add a general error message
       setMessages(prev => [
-        ...prev.filter(msg => msg.id !== tempUserMessage.id),
+        ...prev,
         {
-          id: `user_${Date.now()}`,
-          content: content,
-          role: 'user',
-          timestamp: new Date().toISOString()
-        },
-        {
-          id: `error_${Date.now()}`,
-          content: "I'm having trouble connecting to the Persistence Protocol backend. Please try again later.",
+          id: `error_general_${Date.now()}`,
+          content: "There was a problem getting responses from the models. Please try again.",
           role: 'assistant',
           timestamp: new Date().toISOString()
         }
@@ -210,8 +249,14 @@ export default function Home() {
     setDarkMode(!darkMode);
   };
 
-  const selectModel = (modelId: string) => {
-    setSelectedModel(modelId);
+  const toggleModel = (modelId: string) => {
+    setModels(prevModels => 
+      prevModels.map(model => 
+        model.id === modelId 
+          ? { ...model, selected: !model.selected } 
+          : model
+      )
+    );
   };
 
   return (
@@ -246,7 +291,7 @@ export default function Home() {
         
         <div className="menu-section">
           <h2>Models</h2>
-          {AVAILABLE_MODELS.map(model => (
+          {models.map(model => (
             <div key={model.id} className="model-option">
               <div>
                 <div>{model.name}</div>
@@ -254,10 +299,9 @@ export default function Home() {
               </div>
               <label className="toggle-switch">
                 <input 
-                  type="radio" 
-                  name="model" 
-                  checked={selectedModel === model.id} 
-                  onChange={() => selectModel(model.id)}
+                  type="checkbox" 
+                  checked={model.selected} 
+                  onChange={() => toggleModel(model.id)}
                 />
                 <span className="toggle-slider"></span>
               </label>
@@ -276,6 +320,12 @@ export default function Home() {
               key={message.id}
               className={`message ${message.role === 'user' ? 'user-message' : 'system-message'}`}
             >
+              {/* Add model name for assistant messages */}
+              {message.role === 'assistant' && message.model && (
+                <div className="text-xs font-bold mb-1">
+                  {models.find(m => m.id === message.model)?.name || message.modelName || 'AI'}
+                </div>
+              )}
               <p className="whitespace-pre-wrap">{message.content}</p>
               <div className="text-xs opacity-50 mt-1">
                 {formatTimestamp(message.timestamp)}
