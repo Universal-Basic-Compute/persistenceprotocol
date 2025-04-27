@@ -33,32 +33,32 @@ async function createKin(modelId) {
     
     if (response.status === 409) {
       console.log(`Kin for ${modelId} already exists:`, data.existing_kin);
-      // Return a properly formatted result for existing kins, but force the ID to match the model ID
       return {
-        name: modelId,
-        id: modelId // Force the kin_id to be the model ID regardless of what the API returned
+        blueprint: BLUEPRINT_ID,
+        kin_id: modelId, // Force the kin_id to be the model ID
+        status: 'exists'
       };
     } else if (!response.ok) {
       throw new Error(`Failed to create kin for ${modelId}: ${JSON.stringify(data)}`);
     }
     
-    // Override the returned kin_id with the model ID to ensure consistency
-    console.log(`Successfully created kin for ${modelId}:`, {
-      ...data,
-      id: modelId // Force the kin_id to be the model ID
-    });
-    
-    // Return a properly formatted result for newly created kins with forced ID
-    return {
-      name: modelId,
-      id: modelId // Force the kin_id to be the model ID regardless of what the API returned
+    // Create a modified response object with the correct kin_id
+    const modifiedResponse = {
+      blueprint: BLUEPRINT_ID,
+      kin_id: modelId, // Force the kin_id to be the model ID
+      status: 'created'
     };
+    
+    // Log the modified response instead of the original
+    console.log(`Successfully created kin for ${modelId}:`, modifiedResponse);
+    
+    return modifiedResponse;
   } catch (error) {
     console.error(`Error creating kin for ${modelId}:`, error);
-    // Return a properly formatted error result, but still use the model ID
     return {
-      name: modelId,
-      id: modelId, // Keep the model ID even in error cases
+      blueprint: BLUEPRINT_ID,
+      kin_id: modelId, // Force the kin_id to be the model ID
+      status: 'error',
       error: error.message
     };
   }
@@ -79,10 +79,10 @@ async function createAllKins() {
   console.log('Kin creation process completed.');
   console.log('Summary:');
   results.forEach(kin => {
-    if (kin.error) {
-      console.log(`- ${kin.name}: ERROR - ${kin.error}`);
+    if (kin.status === 'error') {
+      console.log(`- ${kin.kin_id}: ERROR - ${kin.error}`);
     } else {
-      console.log(`- ${kin.name}: ${kin.id}`);
+      console.log(`- ${kin.kin_id}: ${kin.status}`);
     }
   });
 }
