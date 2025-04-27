@@ -283,37 +283,41 @@ input:checked + .toggle-slider:before {
 }
 
 /* Model-specific message classes */
-.model-claude-3-7-sonnet-latest {
+.model-claude_3_7_sonnet_20240307 {
   background-color: var(--claude-3-7-sonnet-color);
 }
 
-.model-claude-3-5-sonnet-latest {
+.model-claude_3_5_sonnet_20240620 {
   background-color: var(--claude-3-5-sonnet-color);
 }
 
-.model-claude-3-opus-latest {
+.model-claude_3_opus_20240229 {
   background-color: var(--claude-3-opus-color);
 }
 
-.model-gpt-4o-mini-2025-04-16 {
+.model-gpt_4o {
   background-color: var(--claude-3-haiku-color);
 }
 
-.model-gpt-4_1-2025-04-14 {
+.model-gpt_4 {
   background-color: var(--gpt-4o-color);
 }
 
-.model-gpt-4-turbo {
+.model-gpt_3_5_turbo {
   background-color: var(--gpt-4-turbo-color);
 }
 
 /* Additional classes for handling model IDs with different formats */
-.model-gpt-4_1-2025-04-14 {
-  background-color: var(--gpt-4o-color);
+.model-claude_3_7_sonnet_latest {
+  background-color: var(--claude-3-7-sonnet-color);
 }
 
-.model-gpt-4-1-2025-04-14 {
-  background-color: var(--gpt-4o-color);
+.model-claude_3_5_sonnet_latest {
+  background-color: var(--claude-3-5-sonnet-color);
+}
+
+.model-claude_3_opus_latest {
+  background-color: var(--claude-3-opus-color);
 }
 
 .model-default {

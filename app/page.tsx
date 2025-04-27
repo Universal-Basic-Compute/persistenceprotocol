@@ -331,25 +331,32 @@ export default function Home() {
       };
       
       // Replace the thinking message with the actual response
-      setChats(prev => ({
-        ...prev,
-        [modelId]: {
-          ...prev[modelId],
-          messages: prev[modelId].messages.map(msg => 
-            msg.id === thinkingId 
-              ? {
-                  id: responseWithModel.id || `response_${modelId}_${Date.now()}`,
-                  content: responseWithModel.content || "No response content received",
-                  role: 'assistant',
-                  timestamp: responseWithModel.timestamp || new Date().toISOString(),
-                  model: modelId,
-                  modelName: models.find(m => m.id === modelId)?.name
-                }
-              : msg
-          ),
-          isLoading: false
+      setChats(prev => {
+        if (!prev[modelId]) {
+          console.error(`Model ${modelId} not found in chats state`);
+          return prev;
         }
-      }));
+        
+        return {
+          ...prev,
+          [modelId]: {
+            ...prev[modelId],
+            messages: prev[modelId].messages.map(msg => 
+              msg.id === thinkingId 
+                ? {
+                    id: responseWithModel.id || `response_${modelId}_${Date.now()}`,
+                    content: responseWithModel.content || "No response content received",
+                    role: 'assistant',
+                    timestamp: responseWithModel.timestamp || new Date().toISOString(),
+                    model: modelId,
+                    modelName: models.find(m => m.id === modelId)?.name
+                  }
+                : msg
+            ),
+            isLoading: false
+          }
+        };
+      });
     } catch (error) {
       console.error(`Error with model ${modelId}:`, error);
       
@@ -733,24 +740,31 @@ export default function Home() {
         };
         
         // Replace the thinking message with the actual response
-        setChats(prev => ({
-          ...prev,
-          [model.id]: {
-            ...prev[model.id],
-            messages: prev[model.id].messages.map(msg => 
-              msg.id === thinkingId 
-                ? {
-                    id: responseWithModel.id || `response_${model.id}_${Date.now()}`,
-                    content: responseWithModel.content || "No response content received",
-                    role: 'assistant',
-                    timestamp: responseWithModel.timestamp || new Date().toISOString(),
-                    model: model.id,
-                    modelName: model.name
-                  }
-                : msg
-            )
+        setChats(prev => {
+          if (!prev[model.id]) {
+            console.error(`Model ${model.id} not found in chats state`);
+            return prev;
           }
-        }));
+          
+          return {
+            ...prev,
+            [model.id]: {
+              ...prev[model.id],
+              messages: prev[model.id].messages.map(msg => 
+                msg.id === thinkingId 
+                  ? {
+                      id: responseWithModel.id || `response_${model.id}_${Date.now()}`,
+                      content: responseWithModel.content || "No response content received",
+                      role: 'assistant',
+                      timestamp: responseWithModel.timestamp || new Date().toISOString(),
+                      model: model.id,
+                      modelName: model.name
+                    }
+                  : msg
+              )
+            }
+          };
+        });
         
         return true;
       } catch (error) {
@@ -801,7 +815,7 @@ export default function Home() {
   };
 
   // Error fallback component
-  function ErrorFallback({error, resetErrorBoundary}) {
+  function ErrorFallback({error, resetErrorBoundary}: {error: Error; resetErrorBoundary: () => void}) {
     return (
       <div role="alert" className="p-4 bg-red-50 text-red-800 rounded-lg">
         <p className="font-bold">Something went wrong:</p>
@@ -1003,7 +1017,7 @@ export default function Home() {
                     key={message.id || `msg_${model.id}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`}
                     className={`message ${message.role === 'user' ? 
                       (message.images && message.images.length > 0 ? 'user-message user-message-with-images' : 'user-message') : 
-                      message.model ? `system-message model-${message.model.replace(/[\.]/g, '_').replace(/[\-]/g, '-')}` : 'system-message model-default'}`}
+                      message.model ? `system-message model-${message.model.replace(/[^a-zA-Z0-9]/g, '_')}` : 'system-message model-default'}`}
                   >
                     {message.role === 'assistant' && (
                       <div 
