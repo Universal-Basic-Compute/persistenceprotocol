@@ -228,11 +228,22 @@ export default function Home() {
   const handleGlobalInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setGlobalInput(e.target.value);
     
-    // Auto-resize textarea
-    const textarea = globalTextareaRef.current;
-    if (textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = `${textarea.scrollHeight}px`;
+    // Debounce the resize operation to improve performance
+    if (globalTextareaRef.current) {
+      // Only resize if content might cause height change
+      if (e.target.value.includes('\n') || 
+          e.target.value.length > 50 || 
+          e.target.value.length === 0) {
+        
+        // Use requestAnimationFrame for smoother performance
+        requestAnimationFrame(() => {
+          const textarea = globalTextareaRef.current;
+          if (textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = `${textarea.scrollHeight}px`;
+          }
+        });
+      }
     }
   };
 
