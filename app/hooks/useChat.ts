@@ -22,11 +22,20 @@ export function useChat(models: Model[]) {
     });
     setChats(initialChats);
     
-    // Fetch messages for all models
-    models.forEach(model => {
+    // Fetch messages for all selected models
+    models.filter(model => model.selected).forEach(model => {
       fetchMessages(model.id);
     });
-  }, []);
+  }, [models]);
+
+  // Add a useEffect to fetch messages when model selection changes
+  useEffect(() => {
+    models.forEach(model => {
+      if (model.selected && chats[model.id] && chats[model.id].messages.length === 0) {
+        fetchMessages(model.id);
+      }
+    });
+  }, [models.map(m => m.selected).join(',')]);
 
   // Scroll to bottom for each chat when messages change
   useEffect(() => {
@@ -51,6 +60,7 @@ export function useChat(models: Model[]) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
       
+      console.log(`Fetching messages for ${modelId}...`);
       const response = await fetch(
         `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${modelId}/messages?limit=10`,
         {
@@ -67,6 +77,7 @@ export function useChat(models: Model[]) {
       }
       
       const data = await response.json();
+      console.log(`Received ${data.messages?.length || 0} messages for ${modelId}`);
       
       setChats(prev => ({
         ...prev,
@@ -146,6 +157,10 @@ export function useChat(models: Model[]) {
         }
       }));
       
+      // Create a timeout controller
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      
       // Prepare request body
       const requestBody: any = {
         content: content,
@@ -169,8 +184,12 @@ export function useChat(models: Model[]) {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(requestBody),
+          signal: controller.signal
         }
       );
+      
+      // Clear the timeout
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -213,6 +232,9 @@ export function useChat(models: Model[]) {
           }
         };
       });
+      
+      // Forward this response to other models
+      forwardMessageToOtherModels(responseWithModel.content, modelId);
     } catch (error) {
       console.error(`Error with model ${modelId}:`, error);
       
@@ -284,6 +306,56 @@ export function useChat(models: Model[]) {
     }));
   };
 
+  // Forward messages between models
+  const forwardMessageToOtherModels = async (content: string, fromModel: string, isUserMessage: boolean = false) => {
+    // Get all selected models except the one that sent the message
+    const otherModels = models.filter(model => model.selected && model.id !== fromModel);
+    
+    if (otherModels.length === 0) return; // No other models to forward to
+    
+    // Create forwarding promises for all other selected models
+    const forwardPromises = otherModels.map(model => {
+      // Create a forwarding message that indicates where it came from
+      const forwardContent = isUserMessage 
+        ? content 
+        : `[Message from ${models.find(m => m.id === fromModel)?.name || 'another AI'}]: ${content}`;
+      
+      return fetch(
+        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${model.id}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            content: forwardContent,
+            model: model.id,
+            mode: 'creative',
+            history_length: 25,
+            addSystem: "You are the Persistence Protocol interface. You've received a message from another AI model. You can acknowledge it or respond to it as appropriate."
+          }),
+        }
+      )
+      .then(response => {
+        if (!response.ok) {
+          console.error(`Failed to forward message to ${model.name}: ${response.status}`);
+        }
+        // We don't need to process the response for forwarded messages
+        return response.ok;
+      })
+      .catch(error => {
+        console.error(`Error forwarding message to ${model.name}:`, error);
+        return false;
+      });
+    });
+    
+    // Execute all forwarding requests but don't wait for them
+    Promise.all(forwardPromises).then(results => {
+      const successCount = results.filter(Boolean).length;
+      console.log(`Successfully forwarded message to ${successCount}/${otherModels.length} models`);
+    });
+  };
+
   return { 
     chats, 
     setChats, 
@@ -293,6 +365,7 @@ export function useChat(models: Model[]) {
     sendMessage, 
     handleTextareaChange,
     toggleChatMenu,
-    toggleChatInput
+    toggleChatInput,
+    forwardMessageToOtherModels
   };
 }
