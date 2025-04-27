@@ -9,7 +9,8 @@
     "lint": "next lint",
     "create-kins": "node scripts/create-kins.js",
     "link-kins": "node scripts/link-kins-to-repo.js",
-    "link-kin": "node scripts/link-single-kin.js"
+    "link-kin": "node scripts/link-single-kin.js",
+    "create-repos": "node scripts/create-model-repos.js"
   },
   "dependencies": {
     "next": "14.0.4",
