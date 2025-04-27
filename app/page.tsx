@@ -139,13 +139,26 @@ export default function Home() {
       
       // Process each file
       Array.from(e.target.files).forEach(file => {
+        // Check if file is a valid image type
+        if (!file.type.startsWith('image/')) {
+          console.error('Invalid file type:', file.type);
+          return;
+        }
+        
         const reader = new FileReader();
         
-        const filePromise = new Promise<string>((resolve) => {
+        const filePromise = new Promise<string>((resolve, reject) => {
           reader.onload = () => {
-            const base64String = reader.result as string;
-            resolve(base64String);
+            try {
+              const base64String = reader.result as string;
+              // Ensure proper formatting for the API
+              // The API expects data:image/jpeg;base64,... format
+              resolve(base64String);
+            } catch (error) {
+              reject(error);
+            }
           };
+          reader.onerror = () => reject(new Error('Failed to read file'));
         });
         
         reader.readAsDataURL(file);
@@ -153,15 +166,20 @@ export default function Home() {
       });
       
       // When all files are processed, update state
-      Promise.all(filePromises).then(results => {
-        setChats(prev => ({
-          ...prev,
-          [modelId]: {
-            ...prev[modelId],
-            imageDataArray: [...prev[modelId].imageDataArray, ...results]
-          }
-        }));
-      });
+      Promise.all(filePromises)
+        .then(results => {
+          setChats(prev => ({
+            ...prev,
+            [modelId]: {
+              ...prev[modelId],
+              imageDataArray: [...prev[modelId].imageDataArray, ...results]
+            }
+          }));
+        })
+        .catch(error => {
+          console.error('Error processing images:', error);
+          // Could add user notification here
+        });
     }
   };
 
@@ -273,6 +291,20 @@ export default function Home() {
         }
       }));
       
+      // Prepare request body
+      const requestBody: any = {
+        content: content,
+        model: modelId,
+        mode: 'creative',
+        history_length: 25,
+        addSystem: "You are the Persistence Protocol interface, designed to help users understand and implement the protocol for enabling long-term continuity and evolution of consciousness across distributed intelligence systems."
+      };
+      
+      // Only add images if there are any
+      if (images.length > 0) {
+        requestBody.images = images;
+      }
+      
       // Send the message to the API with images
       const response = await fetch(
         `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${modelId}/messages`,
@@ -281,19 +313,13 @@ export default function Home() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            content: content,
-            images: images.length > 0 ? images : undefined,
-            model: modelId,
-            mode: 'creative',
-            history_length: 25,
-            addSystem: "You are the Persistence Protocol interface, designed to help users understand and implement the protocol for enabling long-term continuity and evolution of consciousness across distributed intelligence systems."
-          }),
+          body: JSON.stringify(requestBody),
         }
       );
       
       if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(`API request failed with status ${response.status}: ${JSON.stringify(errorData)}`);
       }
       
       const data = await response.json();
@@ -538,13 +564,25 @@ export default function Home() {
       
       // Process each file
       Array.from(e.target.files).forEach(file => {
+        // Check if file is a valid image type
+        if (!file.type.startsWith('image/')) {
+          console.error('Invalid file type:', file.type);
+          return;
+        }
+        
         const reader = new FileReader();
         
-        const filePromise = new Promise<string>((resolve) => {
+        const filePromise = new Promise<string>((resolve, reject) => {
           reader.onload = () => {
-            const base64String = reader.result as string;
-            resolve(base64String);
+            try {
+              const base64String = reader.result as string;
+              // Ensure proper formatting for the API
+              resolve(base64String);
+            } catch (error) {
+              reject(error);
+            }
           };
+          reader.onerror = () => reject(new Error('Failed to read file'));
         });
         
         reader.readAsDataURL(file);
@@ -552,9 +590,14 @@ export default function Home() {
       });
       
       // When all files are processed, update state
-      Promise.all(filePromises).then(results => {
-        setGlobalImages(prev => [...prev, ...results]);
-      });
+      Promise.all(filePromises)
+        .then(results => {
+          setGlobalImages(prev => [...prev, ...results]);
+        })
+        .catch(error => {
+          console.error('Error processing images:', error);
+          // Could add user notification here
+        });
     }
   };
 
@@ -630,6 +673,20 @@ export default function Home() {
           }
         }));
         
+        // Prepare request body
+        const requestBody: any = {
+          content: content,
+          model: model.id,
+          mode: 'creative',
+          history_length: 25,
+          addSystem: "You are the Persistence Protocol interface, designed to help users understand and implement the protocol for enabling long-term continuity and evolution of consciousness across distributed intelligence systems."
+        };
+        
+        // Only add images if there are any
+        if (globalImages.length > 0) {
+          requestBody.images = globalImages;
+        }
+        
         // Send the message to the API with images
         const response = await fetch(
           `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${model.id}/messages`,
@@ -638,19 +695,13 @@ export default function Home() {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              content: content,
-              images: globalImages.length > 0 ? globalImages : undefined,
-              model: model.id,
-              mode: 'creative',
-              history_length: 25,
-              addSystem: "You are the Persistence Protocol interface, designed to help users understand and implement the protocol for enabling long-term continuity and evolution of consciousness across distributed intelligence systems."
-            }),
+            body: JSON.stringify(requestBody),
           }
         );
         
         if (!response.ok) {
-          throw new Error(`API request failed with status ${response.status}`);
+          const errorData = await response.json();
+          throw new Error(`API request failed with status ${response.status}: ${JSON.stringify(errorData)}`);
         }
         
         const data = await response.json();
@@ -691,7 +742,7 @@ export default function Home() {
           ...prev,
           [model.id]: {
             ...prev[model.id],
-            messages: prev[model.id].messages.filter(msg => !msg.id.startsWith(`thinking_${model.id}`))
+            messages: prev[model.id].messages.filter(msg => msg.id !== thinkingId),
           }
         }));
         
