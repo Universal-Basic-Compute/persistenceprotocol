@@ -114,7 +114,7 @@ body {
   background-color: var(--claude-3-7-sonnet-bg);
 }
 
-.chat-grid-item[data-model="claude-3-5-sonnet-20240620"] {
+.chat-grid-item[data-model="deepseek-chat"] {
   background-color: var(--claude-3-5-sonnet-bg);
 }
 
@@ -401,7 +401,7 @@ input:checked + .toggle-slider:before {
   border-left: 3px solid rgba(100, 149, 237, 0.3) !important; /* Light cornflower blue */
 }
 
-.model-claude_3_5_sonnet_20240620,
+.model-deepseek_chat,
 .model-claude_3_5_sonnet_latest {
   background-color: white !important;
   border-left: 3px solid rgba(144, 238, 144, 0.3) !important; /* Light green */
@@ -437,7 +437,7 @@ input:checked + .toggle-slider:before {
   border-left: 3px solid rgba(100, 149, 237, 0.2) !important;
 }
 
-.dark .model-claude_3_5_sonnet_20240620,
+.dark .model-deepseek_chat,
 .dark .model-claude_3_5_sonnet_latest {
   background-color: #1a1a1a !important;
   border-left: 3px solid rgba(144, 238, 144, 0.2) !important;
@@ -1060,11 +1060,11 @@ input:checked + .toggle-slider:before {
 }
 
 /* Claude 3.5 Sonnet - Soft rounded corners with a diagonal accent */
-.model-shape-claude_3_5_sonnet_20240620 {
+.model-shape-deepseek_chat {
   border-radius: 1.5rem 0.5rem 1.5rem 0.5rem !important;
 }
 
-.model-shape-claude_3_5_sonnet_20240620::after {
+.model-shape-deepseek_chat::after {
   content: "";
   position: absolute;
   top: 0;
