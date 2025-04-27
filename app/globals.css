@@ -957,11 +957,21 @@ input:checked + .toggle-slider:before {
   position: relative;
   top: auto;
   right: auto;
+  border: none !important; /* Remove border */
+  background: transparent !important; /* Transparent background */
+  color: #8B6D4C !important; /* Wood tone color */
+  opacity: 0.7;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .fullscreen-button:hover {
   opacity: 1;
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(139, 109, 76, 0.1) !important; /* Subtle hover effect */
+  transform: scale(1.05);
+}
+
+.dark .fullscreen-button {
+  color: #E6D7C3 !important; /* Lighter wood tone for dark mode */
 }
 
 /* Fullscreen chat styles */
