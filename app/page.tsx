@@ -862,8 +862,7 @@ export default function Home() {
                 />
                 <span className="toggle-slider"></span>
               </label>
-              </div>
-            </ErrorBoundary>
+            </div>
           ))}
         </div>
       </div>
