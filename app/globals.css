@@ -771,7 +771,7 @@ input:checked + .toggle-slider:before {
 /* Global chat input */
 .global-input-container {
   position: fixed;
-  top: 70px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   width: 80%;
