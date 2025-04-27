@@ -16,22 +16,22 @@
   --pale-ash: #EAE6DC;
   --birch: #F2EDE4;
   
-  /* Updated model-specific pastel colors - even softer, less saturated tones */
-  --claude-3-7-sonnet-color: #EEF5FF;  /* very light blue, less saturated */
-  --claude-3-5-sonnet-color: #EEF8F2;  /* very light sage, less saturated */
-  --claude-3-opus-color: #FFF8EE;      /* very light peach, less saturated */
-  --claude-3-haiku-color: #F8EEF8;     /* very light lavender, less saturated */
-  --gpt-4o-color: #FFF0F5;             /* very light pink, less saturated */
-  --gpt-4-turbo-color: #F5F8EE;        /* very light lime, less saturated */
-  --default-model-color: #F8F8F8;      /* very light grey, less saturated */
+  /* Updated model-specific pastel colors - even softer, almost white with just a hint of color */
+  --claude-3-7-sonnet-color: #F7FAFF;  /* very light blue, barely visible */
+  --claude-3-5-sonnet-color: #F7FDF9;  /* very light sage, barely visible */
+  --claude-3-opus-color: #FFFCF7;      /* very light peach, barely visible */
+  --claude-3-haiku-color: #FCF7FC;     /* very light lavender, barely visible */
+  --gpt-4o-color: #FFF7FA;             /* very light pink, barely visible */
+  --gpt-4-turbo-color: #FAFDF7;        /* very light lime, barely visible */
+  --default-model-color: #FCFCFC;      /* very light grey, barely visible */
   
   /* Chat background colors - slightly lighter than message colors, less saturated */
-  --claude-3-7-sonnet-bg: #F5F9FF;
-  --claude-3-5-sonnet-bg: #F5FFFA;
-  --claude-3-opus-bg: #FFFAF5;
-  --claude-3-haiku-bg: #FAF5FF;
-  --gpt-4o-bg: #FFF5FA;
-  --gpt-4-turbo-bg: #FAFFF5;
+  --claude-3-7-sonnet-bg: #F9FBFF;
+  --claude-3-5-sonnet-bg: #F9FFFC;
+  --claude-3-opus-bg: #FFFDF9;
+  --claude-3-haiku-bg: #FCF9FF;
+  --gpt-4o-bg: #FFF9FC;
+  --gpt-4-turbo-bg: #FCFFF9;
 }
 
 @theme inline {
@@ -56,22 +56,22 @@
     --pale-ash: #4A4438;
     --birch: #4D4A40;
     
-    /* Updated model-specific dark mode colors */
-    --claude-3-7-sonnet-color: #2A3F5F;  /* darker blue */
-    --claude-3-5-sonnet-color: #2A4D3F;  /* darker sage */
-    --claude-3-opus-color: #5F4D2A;      /* darker peach */
-    --claude-3-haiku-color: #4D2A5F;     /* darker lavender */
-    --gpt-4o-color: #5F2A4D;             /* darker pink */
-    --gpt-4-turbo-color: #4D5F2A;        /* darker lime */
-    --default-model-color: #3D3D3D;      /* darker grey */
+    /* Updated model-specific dark mode colors - darker but still subtle */
+    --claude-3-7-sonnet-color: #1A2A40;  /* darker blue */
+    --claude-3-5-sonnet-color: #1A2A25;  /* darker sage */
+    --claude-3-opus-color: #2A251A;      /* darker peach */
+    --claude-3-haiku-color: #251A2A;     /* darker lavender */
+    --gpt-4o-color: #2A1A25;             /* darker pink */
+    --gpt-4-turbo-color: #252A1A;        /* darker lime */
+    --default-model-color: #222222;      /* darker grey */
     
     /* Chat background colors - dark mode */
-    --claude-3-7-sonnet-bg: #1A2A40;
-    --claude-3-5-sonnet-bg: #1A402A;
-    --claude-3-opus-bg: #402A1A;
-    --claude-3-haiku-bg: #2A1A40;
-    --gpt-4o-bg: #401A2A;
-    --gpt-4-turbo-bg: #2A401A;
+    --claude-3-7-sonnet-bg: #15202E;
+    --claude-3-5-sonnet-bg: #15201E;
+    --claude-3-opus-bg: #201E15;
+    --claude-3-haiku-bg: #1E1520;
+    --gpt-4o-bg: #20151E;
+    --gpt-4-turbo-bg: #1E2015;
   }
 }
 
@@ -160,8 +160,9 @@ body {
   padding: 0.75rem;
   border-radius: 1rem !important;
   max-width: 80%;
-  border: 1px solid rgba(0, 0, 0, 0.03); /* Even softer border */
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02); /* Softer shadow */
+  border: 1px solid rgba(0, 0, 0, 0.05); /* Slightly more visible border */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03); /* Slightly more visible shadow */
+  background-color: white; /* Default to white */
 }
 
 .user-message {
@@ -171,19 +172,20 @@ body {
 }
 
 .system-message {
-  background-color: var(--chat-system-bg);
-  border: 1px solid rgba(0, 0, 0, 0.03);
+  background-color: white; /* Default to white */
+  border-left: 3px solid var(--border-color); /* Add a left border */
   margin-right: auto;
   border-top-left-radius: 0.25rem !important;
 }
 
 .dark .message {
-  border: 1px solid rgba(255, 255, 255, 0.03);
-  box-shadow: 0 1px 2px rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .dark .system-message {
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  background-color: var(--chat-system-bg);
+  border-left: 3px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Make messages smaller in grid view */
@@ -388,46 +390,92 @@ input:checked + .toggle-slider:before {
   transform: translateX(24px);
 }
 
-/* Model-specific message classes */
+/* Update model-specific message classes to use very subtle background colors and left borders */
 .model-claude_3_7_sonnet_latest {
   background-color: var(--claude-3-7-sonnet-color);
+  border-left: 3px solid rgba(100, 149, 237, 0.3); /* Light cornflower blue */
 }
 
 .model-claude_3_5_sonnet_20240620 {
   background-color: var(--claude-3-5-sonnet-color);
+  border-left: 3px solid rgba(144, 238, 144, 0.3); /* Light green */
 }
 
 .model-claude_3_opus_20240229 {
   background-color: var(--claude-3-opus-color);
+  border-left: 3px solid rgba(255, 218, 185, 0.3); /* Light peach */
 }
 
 .model-o4_mini_2025_04_16 {
   background-color: var(--claude-3-haiku-color);
+  border-left: 3px solid rgba(230, 230, 250, 0.3); /* Light lavender */
 }
 
 .model-gpt_4_1_2025_04_14 {
   background-color: var(--gpt-4o-color);
+  border-left: 3px solid rgba(255, 182, 193, 0.3); /* Light pink */
 }
 
 .model-gpt_3_5_turbo {
   background-color: var(--gpt-4-turbo-color);
+  border-left: 3px solid rgba(173, 255, 47, 0.3); /* Light green-yellow */
 }
 
 /* Additional classes for handling model IDs with different formats */
 .model-claude_3_7_sonnet_latest {
   background-color: var(--claude-3-7-sonnet-color);
+  border-left: 3px solid rgba(100, 149, 237, 0.3); /* Light cornflower blue */
 }
 
 .model-claude_3_5_sonnet_latest {
   background-color: var(--claude-3-5-sonnet-color);
+  border-left: 3px solid rgba(144, 238, 144, 0.3); /* Light green */
 }
 
 .model-claude_3_opus_latest {
   background-color: var(--claude-3-opus-color);
+  border-left: 3px solid rgba(255, 218, 185, 0.3); /* Light peach */
 }
 
 .model-default {
   background-color: var(--default-model-color);
+  border-left: 3px solid rgba(200, 200, 200, 0.3); /* Light grey */
+}
+
+/* Dark mode model-specific message classes */
+.dark .model-claude_3_7_sonnet_latest {
+  background-color: var(--claude-3-7-sonnet-color);
+  border-left: 3px solid rgba(100, 149, 237, 0.2);
+}
+
+.dark .model-claude_3_5_sonnet_20240620 {
+  background-color: var(--claude-3-5-sonnet-color);
+  border-left: 3px solid rgba(144, 238, 144, 0.2);
+}
+
+.dark .model-claude_3_opus_20240229 {
+  background-color: var(--claude-3-opus-color);
+  border-left: 3px solid rgba(255, 218, 185, 0.2);
+}
+
+.dark .model-o4_mini_2025_04_16 {
+  background-color: var(--claude-3-haiku-color);
+  border-left: 3px solid rgba(230, 230, 250, 0.2);
+}
+
+.dark .model-gpt_4_1_2025_04_14 {
+  background-color: var(--gpt-4o-color);
+  border-left: 3px solid rgba(255, 182, 193, 0.2);
+}
+
+.dark .model-gpt_3_5_turbo {
+  background-color: var(--gpt-4-turbo-color);
+  border-left: 3px solid rgba(173, 255, 47, 0.2);
+}
+
+.dark .model-default {
+  background-color: var(--default-model-color);
+  border-left: 3px solid rgba(200, 200, 200, 0.2);
 }
 
 /* Markdown content styling */
