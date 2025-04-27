@@ -403,10 +403,15 @@ export default function Home() {
               key={message.id || `msg_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`}
               className={`message ${message.role === 'user' ? 'user-message' : 'system-message'}`}
             >
-              {/* Add model name for assistant messages */}
-              {message.role === 'assistant' && message.model && (
-                <div className="text-xs font-bold mb-1" key={`model_${message.id || Date.now()}`}>
-                  {models.find(m => m.id === message.model)?.name || message.modelName || 'AI'}
+              {/* Add model name for assistant messages with improved styling */}
+              {message.role === 'assistant' && (
+                <div 
+                  className="text-xs font-bold mb-1 pb-1 border-b border-gray-200" 
+                  key={`model_${message.id || Date.now()}`}
+                >
+                  {message.model ? 
+                    (models.find(m => m.id === message.model)?.name || message.modelName || 'AI') : 
+                    'Persistence Protocol'}
                 </div>
               )}
               <p className="whitespace-pre-wrap">{message.content}</p>
