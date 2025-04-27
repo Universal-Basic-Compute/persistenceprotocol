@@ -32,16 +32,29 @@ async function createKin(modelId) {
     
     if (response.status === 409) {
       console.log(`Kin for ${modelId} already exists:`, data.existing_kin);
-      return data.existing_kin;
+      // Return a properly formatted result for existing kins
+      return {
+        name: modelId,
+        id: data.existing_kin.id || 'unknown-id'
+      };
     } else if (!response.ok) {
       throw new Error(`Failed to create kin for ${modelId}: ${JSON.stringify(data)}`);
     }
     
     console.log(`Successfully created kin for ${modelId}:`, data);
-    return data;
+    // Return a properly formatted result for newly created kins
+    return {
+      name: modelId,
+      id: data.id || 'unknown-id'
+    };
   } catch (error) {
     console.error(`Error creating kin for ${modelId}:`, error);
-    return null;
+    // Return a properly formatted error result
+    return {
+      name: modelId,
+      id: 'error',
+      error: error.message
+    };
   }
 }
 
@@ -60,7 +73,11 @@ async function createAllKins() {
   console.log('Kin creation process completed.');
   console.log('Summary:');
   results.forEach(kin => {
-    console.log(`- ${kin.name}: ${kin.id}`);
+    if (kin.error) {
+      console.log(`- ${kin.name}: ERROR - ${kin.error}`);
+    } else {
+      console.log(`- ${kin.name}: ${kin.id}`);
+    }
   });
 }
 
