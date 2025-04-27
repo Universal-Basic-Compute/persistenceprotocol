@@ -116,6 +116,56 @@ export default function Home() {
     }
   };
 
+  // Function to forward messages between models
+  const forwardMessageToOtherModels = async (content: string, fromModel: string, isUserMessage: boolean = false) => {
+    // Get all selected models except the one that sent the message
+    const otherModels = models.filter(model => model.selected && model.id !== fromModel);
+    
+    if (otherModels.length === 0) return; // No other models to forward to
+    
+    // Create forwarding promises for all other selected models
+    const forwardPromises = otherModels.map(model => {
+      // Create a forwarding message that indicates where it came from
+      const forwardContent = isUserMessage 
+        ? content 
+        : `[Message from ${models.find(m => m.id === fromModel)?.name || 'another AI'}]: ${content}`;
+      
+      return fetch(
+        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${model.id}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            content: forwardContent,
+            model: model.id,
+            mode: 'creative',
+            history_length: 25,
+            addSystem: "You are the Persistence Protocol interface. You've received a message from another AI model. You can acknowledge it or respond to it as appropriate."
+          }),
+        }
+      )
+      .then(response => {
+        if (!response.ok) {
+          console.error(`Failed to forward message to ${model.name}: ${response.status}`);
+        }
+        // We don't need to process the response for forwarded messages
+        return response.ok;
+      })
+      .catch(error => {
+        console.error(`Error forwarding message to ${model.name}:`, error);
+        return false;
+      });
+    });
+    
+    // Execute all forwarding requests but don't wait for them
+    Promise.all(forwardPromises).then(results => {
+      const successCount = results.filter(Boolean).length;
+      console.log(`Successfully forwarded message to ${successCount}/${otherModels.length} models`);
+    });
+  };
+
   const sendMessage = async (content: string) => {
     if (content.trim() === '') return;
     
@@ -168,11 +218,16 @@ export default function Home() {
       })
       .then(data => {
         // Add model information to the response
-        return {
+        const responseWithModel = {
           ...data,
           model: model.id,
           modelName: model.name
         };
+        
+        // Forward this AI's response to all other selected models
+        forwardMessageToOtherModels(responseWithModel.content, model.id);
+        
+        return responseWithModel;
       })
       .catch(error => {
         console.error(`Error with model ${model.name}:`, error);
@@ -187,6 +242,10 @@ export default function Home() {
         };
       });
     });
+    
+    // Also forward the user message to all selected models
+    // This ensures all models see the same user input
+    forwardMessageToOtherModels(content, '', true);
     
     // Wait for all model responses
     try {
