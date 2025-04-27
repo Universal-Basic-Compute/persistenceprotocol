@@ -1,5 +1,44 @@
 const fetch = require('node-fetch');
-const { AVAILABLE_MODELS } = require('../app/api/config');
+const fs = require('fs');
+const path = require('path');
+
+// Read the config file directly instead of importing it
+const configPath = path.join(__dirname, '../app/api/config.ts');
+const configContent = fs.readFileSync(configPath, 'utf8');
+
+// Extract AVAILABLE_MODELS from the config file using regex
+const modelsMatch = configContent.match(/export const AVAILABLE_MODELS = \[([\s\S]*?)\];/);
+let AVAILABLE_MODELS = [];
+
+if (modelsMatch && modelsMatch[1]) {
+  // Parse the models array from the string
+  const modelsString = modelsMatch[1];
+  
+  // Extract each model object using regex
+  const modelRegex = /{\s*id:\s*['"]([^'"]+)['"]\s*,\s*name:\s*['"]([^'"]+)['"]\s*,\s*description:\s*['"]([^'"]+)['"]\s*,\s*selected:\s*(true|false)\s*}/g;
+  let match;
+  
+  while ((match = modelRegex.exec(modelsString)) !== null) {
+    AVAILABLE_MODELS.push({
+      id: match[1],
+      name: match[2],
+      description: match[3],
+      selected: match[4] === 'true'
+    });
+  }
+}
+
+// If we couldn't extract models, use a fallback
+if (AVAILABLE_MODELS.length === 0) {
+  console.warn('Could not extract models from config file. Using fallback models.');
+  AVAILABLE_MODELS = [
+    { id: 'claude-3-7-sonnet-latest', name: 'Claude 3.7 Sonnet', description: 'Balanced performance and speed', selected: true },
+    { id: 'deepseek-chat', name: 'DeepSeek Chat', description: 'Advanced reasoning', selected: true },
+    { id: 'o4-mini', name: 'o4-mini', description: 'Fast responses', selected: true },
+    { id: 'gpt-4-1', name: 'GPT-4.1', description: 'OpenAI\'s latest model', selected: true },
+    { id: 'gpt-4o', name: 'GPT-4o', description: 'OpenAI\'s balanced model', selected: true },
+  ];
+}
 
 // GitHub configuration
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN; // You'll need to set this environment variable
@@ -84,6 +123,10 @@ async function createRepoForModel(modelId, modelName) {
 async function createAllModelRepos() {
   console.log('Starting repository creation process...');
   console.log(`Target organization: ${GITHUB_ORG}`);
+  console.log(`Found ${AVAILABLE_MODELS.length} models in config:`);
+  AVAILABLE_MODELS.forEach(model => {
+    console.log(`- ${model.id}: ${model.name}`);
+  });
   
   const results = [];
   
