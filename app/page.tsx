@@ -147,6 +147,9 @@ export default function Home() {
         throw new Error(`Chat state not found for model ${targetModelId}`);
       }
       
+      console.log(`Generating image with prompt: "${text.substring(0, 100)}..."`);
+      
+      // Update the request body to match the expected format
       const response = await fetch(
         `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${targetModelId}/images`,
         {
@@ -164,10 +167,19 @@ export default function Home() {
       );
       
       if (!response.ok) {
-        throw new Error(`Image generation API request failed with status ${response.status}`);
+        const errorText = await response.text();
+        console.error(`Image generation failed with status ${response.status}: ${errorText}`);
+        throw new Error(`Image generation failed with status ${response.status}`);
       }
       
       const data = await response.json();
+      console.log("Image generation response:", data);
+      
+      // Check if the response has the expected structure
+      if (!data.data || !data.data.url) {
+        console.error("Invalid image response format:", data);
+        throw new Error("Invalid image response format");
+      }
       
       // Add the generated image to the message
       setChats(prev => {
@@ -195,8 +207,11 @@ export default function Home() {
       setGeneratingImage(null);
     } catch (error) {
       console.error('Error generating image:', error);
+      
+      // Show error message to the user
+      alert(`Failed to generate image: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      
       setGeneratingImage(null);
-      // Could add error notification here
     }
   };
 
