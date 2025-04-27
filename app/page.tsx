@@ -401,7 +401,8 @@ export default function Home() {
           {messages.map((message) => (
             <div
               key={message.id || `msg_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`}
-              className={`message ${message.role === 'user' ? 'user-message' : 'system-message'}`}
+              className={`message ${message.role === 'user' ? 'user-message' : 
+                message.model ? `system-message model-${message.model}` : 'system-message model-default'}`}
             >
               {/* Add model name for assistant messages with improved styling */}
               {message.role === 'assistant' && (

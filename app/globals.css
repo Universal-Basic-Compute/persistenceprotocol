@@ -6,6 +6,14 @@
   --chat-user-bg: #f3f3f3;
   --chat-system-bg: #ffffff;
   --border-color: #e5e5e5;
+  
+  /* Model-specific pastel colors */
+  --claude-3-7-sonnet-color: #f0f7ff;
+  --claude-3-5-sonnet-color: #f0fff7;
+  --claude-3-opus-color: #fff7f0;
+  --claude-3-haiku-color: #f7f0ff;
+  --gpt-4o-color: #fff0f7;
+  --default-model-color: #f5f5f5;
 }
 
 @theme inline {
@@ -22,6 +30,14 @@
     --chat-user-bg: #1a1a1a;
     --chat-system-bg: #0a0a0a;
     --border-color: #333333;
+    
+    /* Model-specific dark mode pastel colors (slightly darker) */
+    --claude-3-7-sonnet-color: #0a1a2f;
+    --claude-3-5-sonnet-color: #0a2f1a;
+    --claude-3-opus-color: #2f1a0a;
+    --claude-3-haiku-color: #1a0a2f;
+    --gpt-4o-color: #2f0a1a;
+    --default-model-color: #1a1a1a;
   }
 }
 
@@ -200,6 +216,31 @@ input:checked + .toggle-slider {
 
 input:checked + .toggle-slider:before {
   transform: translateX(24px);
+}
+
+/* Model-specific message classes */
+.model-claude-3-7-sonnet-latest {
+  background-color: var(--claude-3-7-sonnet-color);
+}
+
+.model-claude-3-5-sonnet-latest {
+  background-color: var(--claude-3-5-sonnet-color);
+}
+
+.model-claude-3-opus-latest {
+  background-color: var(--claude-3-opus-color);
+}
+
+.model-claude-3-haiku-latest {
+  background-color: var(--claude-3-haiku-color);
+}
+
+.model-gpt-4o {
+  background-color: var(--gpt-4o-color);
+}
+
+.model-default {
+  background-color: var(--default-model-color);
 }
 
 /* Adjust main content when menu is open */
