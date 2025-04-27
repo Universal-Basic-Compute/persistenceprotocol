@@ -1,6 +1,10 @@
 const API_BASE_URL = 'http://localhost:5000/v2'; // Use localhost for development
 const BLUEPRINT_ID = 'persistenceprotocol';
-const GITHUB_REPO_URL = 'https://github.com/Universal-Basic-Compute/persistenceprotocol';
+
+// Function to generate model-specific repository URLs
+function getRepoUrlForModel(modelId) {
+  return `https://github.com/Universal-Basic-Compute/persistenceprotocol_${modelId}.git`;
+}
 
 // Models to link kins for - match with app/api/config.ts
 const MODELS = [
@@ -13,7 +17,8 @@ const MODELS = [
 
 async function linkKinToRepo(kinId, retryCount = 0) {
   try {
-    console.log(`Linking kin ${kinId} to GitHub repository... (Attempt ${retryCount + 1})`);
+    const repoUrl = getRepoUrlForModel(kinId);
+    console.log(`Linking kin ${kinId} to GitHub repository: ${repoUrl}... (Attempt ${retryCount + 1})`);
     
     // First, check if the kin exists
     console.log(`Checking if kin ${kinId} exists...`);
@@ -60,7 +65,7 @@ async function linkKinToRepo(kinId, retryCount = 0) {
     
     // Now try to link the repository
     console.log(`Sending link-repo request for ${kinId}...`);
-    console.log(`Repository URL: ${GITHUB_REPO_URL}`);
+    console.log(`Repository URL: ${repoUrl}`);
     
     const response = await fetch(
       `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${kinId}/link-repo`,
@@ -70,7 +75,7 @@ async function linkKinToRepo(kinId, retryCount = 0) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          github_url: GITHUB_REPO_URL,
+          github_url: repoUrl,
           // Note: token and username are optional and will use environment variables if available
         }),
       }
@@ -107,7 +112,7 @@ async function linkKinToRepo(kinId, retryCount = 0) {
     return {
       kin_id: kinId,
       status: 'linked',
-      github_url: GITHUB_REPO_URL
+      github_url: repoUrl
     };
   } catch (error) {
     console.error(`Error linking kin ${kinId} to repository:`, error);
@@ -130,7 +135,10 @@ async function linkKinToRepo(kinId, retryCount = 0) {
 
 async function linkAllKins() {
   console.log('Starting kin-repository linking process...');
-  console.log(`Target repository: ${GITHUB_REPO_URL}`);
+  console.log('Each model will be linked to its own repository:');
+  MODELS.forEach(modelId => {
+    console.log(`- ${modelId}: ${getRepoUrlForModel(modelId)}`);
+  });
   
   const results = [];
   
