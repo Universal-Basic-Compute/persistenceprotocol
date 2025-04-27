@@ -5,7 +5,6 @@ const BLUEPRINT_ID = 'persistenceprotocol';
 const MODELS = [
   'claude-3-7-sonnet-latest',
   'claude-3-5-sonnet-20240620',
-  'claude-3-opus-20240229',
   'o4-mini',
   'gpt-4-1',
   'gpt-4o'

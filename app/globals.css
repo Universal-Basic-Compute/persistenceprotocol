@@ -118,9 +118,6 @@ body {
   background-color: var(--claude-3-5-sonnet-bg);
 }
 
-.chat-grid-item[data-model="claude-3-opus-20240229"] {
-  background-color: var(--claude-3-opus-bg);
-}
 
 .chat-grid-item[data-model="o4-mini"] {
   background-color: var(--claude-3-haiku-bg);
@@ -410,11 +407,6 @@ input:checked + .toggle-slider:before {
   border-left: 3px solid rgba(144, 238, 144, 0.3) !important; /* Light green */
 }
 
-.model-claude_3_opus_20240229,
-.model-claude_3_opus_latest {
-  background-color: white !important;
-  border-left: 3px solid rgba(255, 218, 185, 0.3) !important; /* Light peach */
-}
 
 .model-o4_mini,
 .model-gpt_4o {
@@ -451,11 +443,6 @@ input:checked + .toggle-slider:before {
   border-left: 3px solid rgba(144, 238, 144, 0.2) !important;
 }
 
-.dark .model-claude_3_opus_20240229,
-.dark .model-claude_3_opus_latest {
-  background-color: #1a1a1a !important;
-  border-left: 3px solid rgba(255, 218, 185, 0.2) !important;
-}
 
 .dark .model-o4_mini,
 .dark .model-gpt_4o {
@@ -1090,22 +1077,6 @@ input:checked + .toggle-slider:before {
   z-index: 1;
 }
 
-/* Claude 3 Opus - Elegant curved shape */
-.model-shape-claude_3_opus_20240229 {
-  border-radius: 2rem 2rem 0.5rem 0.5rem !important;
-}
-
-.model-shape-claude_3_opus_20240229::before {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 8px;
-  background: linear-gradient(90deg, transparent 0%, var(--claude-3-opus-color) 50%, transparent 100%);
-  opacity: 0.7;
-  z-index: 1;
-}
 
 /* GPT-4o Mini - Playful asymmetric shape */
 .model-shape-o4_mini {
