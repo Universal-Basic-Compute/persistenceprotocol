@@ -328,7 +328,12 @@ export default function Home() {
     // Clear the global input
     setGlobalInput('');
     setGlobalImages([]);
-    
+  
+    // Reset the height of the textarea
+    if (globalTextareaRef.current) {
+      globalTextareaRef.current.style.height = 'auto';
+    }
+  
     // Send the message to each selected model
     const sendPromises = selectedModels.map(async (model) => {
       try {
