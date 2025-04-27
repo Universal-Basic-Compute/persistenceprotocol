@@ -307,6 +307,15 @@ input:checked + .toggle-slider:before {
   background-color: var(--gpt-4-turbo-color);
 }
 
+/* Additional classes for handling model IDs with different formats */
+.model-gpt-4_1-2025-04-14 {
+  background-color: var(--gpt-4o-color);
+}
+
+.model-gpt-4-1-2025-04-14 {
+  background-color: var(--gpt-4o-color);
+}
+
 .model-default {
   background-color: var(--default-model-color);
 }
