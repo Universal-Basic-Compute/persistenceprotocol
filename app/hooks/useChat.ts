@@ -62,7 +62,7 @@ export function useChat(models: Model[]) {
       
       console.log(`Fetching messages for ${modelId}...`);
       const response = await fetch(
-        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${modelId}/messages?limit=10`,
+        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${modelId}/channels/default/messages?limit=10`,
         {
           signal: controller.signal
         }
@@ -79,11 +79,19 @@ export function useChat(models: Model[]) {
       const data = await response.json();
       console.log(`Received ${data.messages?.length || 0} messages for ${modelId}`);
       
+      // Add channel_id to each message
+      const messagesWithChannel = (data.messages || []).map((msg: Message) => ({
+        ...msg,
+        channel_id: msg.channel_id || 'default',
+        model: modelId,
+        modelName: models.find(m => m.id === modelId)?.name
+      }));
+      
       setChats(prev => ({
         ...prev,
         [modelId]: {
           ...prev[modelId],
-          messages: data.messages || [],
+          messages: messagesWithChannel,
           isLoading: false
         }
       }));
@@ -101,7 +109,8 @@ export function useChat(models: Model[]) {
             role: 'assistant',
             timestamp: new Date().toISOString(),
             model: modelId,
-            modelName: models.find(m => m.id === modelId)?.name
+            modelName: models.find(m => m.id === modelId)?.name,
+            channel_id: 'default'
           }],
           isLoading: false
         }
@@ -122,7 +131,8 @@ export function useChat(models: Model[]) {
       content: content,
       role: 'user',
       timestamp: new Date().toISOString(),
-      images: images.length > 0 ? [...images] : undefined
+      images: images.length > 0 ? [...images] : undefined,
+      channel_id: 'default' // Add channel_id to the message
     };
     
     setChats(prev => ({
@@ -151,7 +161,8 @@ export function useChat(models: Model[]) {
               role: 'assistant',
               timestamp: new Date().toISOString(),
               model: modelId,
-              modelName: models.find(m => m.id === modelId)?.name
+              modelName: models.find(m => m.id === modelId)?.name,
+              channel_id: 'default'
             }
           ]
         }
@@ -188,9 +199,9 @@ export function useChat(models: Model[]) {
       // Add the SPEC.md file as context
       requestBody.addContext = ["docs/SPEC.md"];
       
-      // Send the message to the API with images
+      // Send the message to the channel "default"
       const response = await fetch(
-        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${modelId}/messages`,
+        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${modelId}/channels/default/messages`,
         {
           method: 'POST',
           headers: {
@@ -233,7 +244,8 @@ export function useChat(models: Model[]) {
         ...data,
         content: responseContent, // Use our extracted content
         model: modelId,
-        modelName: models.find(m => m.id === modelId)?.name
+        modelName: models.find(m => m.id === modelId)?.name,
+        channel_id: data.channel_id || 'default'
       };
       
       // Replace the thinking message with the actual response
@@ -255,7 +267,8 @@ export function useChat(models: Model[]) {
                     role: 'assistant',
                     timestamp: responseWithModel.timestamp || new Date().toISOString(),
                     model: modelId,
-                    modelName: models.find(m => m.id === modelId)?.name
+                    modelName: models.find(m => m.id === modelId)?.name,
+                    channel_id: responseWithModel.channel_id
                   }
                 : msg
             ),
@@ -264,8 +277,8 @@ export function useChat(models: Model[]) {
         };
       });
       
-      // Forward this response to other models
-      forwardMessageToOtherModels(responseWithModel.content, modelId);
+      // We don't forward messages to other models anymore since we're using channels
+      // Each chat is independent
     } catch (error) {
       console.error(`Error with model ${modelId}:`, error);
       
@@ -292,7 +305,8 @@ export function useChat(models: Model[]) {
               role: 'assistant',
               timestamp: new Date().toISOString(),
               model: modelId,
-              modelName: models.find(m => m.id === modelId)?.name
+              modelName: models.find(m => m.id === modelId)?.name,
+              channel_id: 'default'
             }
           ]
         }

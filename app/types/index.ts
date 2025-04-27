@@ -7,6 +7,7 @@ export type Message = {
   modelName?: string;
   imageUrl?: string;
   images?: string[]; // Array of image URLs or base64 data
+  channel_id?: string; // Add channel_id field
 };
 
 export type Model = {

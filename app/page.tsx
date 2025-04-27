@@ -284,7 +284,8 @@ export default function Home() {
       content: content,
       role: 'user',
       timestamp: new Date().toISOString(),
-      images: globalImages.length > 0 ? [...globalImages] : undefined
+      images: globalImages.length > 0 ? [...globalImages] : undefined,
+      channel_id: 'default'
     };
     
     // Add the user message to all selected chats
@@ -320,7 +321,8 @@ export default function Home() {
                 role: 'assistant',
                 timestamp: new Date().toISOString(),
                 model: model.id,
-                modelName: model.name
+                modelName: model.name,
+                channel_id: 'default'
               }
             ]
           }
@@ -340,9 +342,9 @@ export default function Home() {
           requestBody.images = globalImages;
         }
         
-        // Send the message to the API with images
+        // Send the message to the API with images using the channel endpoint
         const response = await fetch(
-          `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${model.id}/messages`,
+          `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${model.id}/channels/default/messages`,
           {
             method: 'POST',
             headers: {
@@ -381,7 +383,8 @@ export default function Home() {
           ...data,
           content: responseContent, // Use our extracted content
           model: model.id,
-          modelName: model.name
+          modelName: model.name,
+          channel_id: data.channel_id || 'default'
         };
         
         // Replace the thinking message with the actual response
@@ -403,7 +406,8 @@ export default function Home() {
                       role: 'assistant',
                       timestamp: responseWithModel.timestamp || new Date().toISOString(),
                       model: model.id,
-                      modelName: model.name
+                      modelName: model.name,
+                      channel_id: responseWithModel.channel_id
                     }
                   : msg
               )
