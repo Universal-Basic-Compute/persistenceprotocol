@@ -191,32 +191,51 @@ export default function Home() {
     setInputValue('');
     setIsLoading(true);
     
+    // Also forward the user message to all selected models
+    // This ensures all models see the same user input
+    forwardMessageToOtherModels(content, '', true);
+    
     // Create an array of promises for all selected models
-    const modelPromises = selectedModels.map(model => {
-      // Use the model ID as the kin ID for each request
-      return fetch(
-        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${model.id}/messages`,
+    const modelPromises = selectedModels.map(async model => {
+      // Create a "thinking" message for this model
+      const thinkingId = `thinking_${model.id}_${Date.now()}`;
+      setMessages(prev => [
+        ...prev,
         {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            content: content,
-            model: model.id,
-            mode: 'creative',
-            history_length: 25,
-            addSystem: "You are the Persistence Protocol interface, designed to help users understand and implement the protocol for enabling long-term continuity and evolution of consciousness across distributed intelligence systems."
-          }),
+          id: thinkingId,
+          content: `${model.name} is thinking...`,
+          role: 'assistant',
+          timestamp: new Date().toISOString(),
+          model: model.id,
+          modelName: model.name
         }
-      )
-      .then(response => {
+      ]);
+      
+      try {
+        // Use the model ID as the kin ID for each request
+        const response = await fetch(
+          `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${model.id}/messages`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              content: content,
+              model: model.id,
+              mode: 'creative',
+              history_length: 25,
+              addSystem: "You are the Persistence Protocol interface, designed to help users understand and implement the protocol for enabling long-term continuity and evolution of consciousness across distributed intelligence systems."
+            }),
+          }
+        );
+        
         if (!response.ok) {
           throw new Error(`API request failed with status ${response.status}`);
         }
-        return response.json();
-      })
-      .then(data => {
+        
+        const data = await response.json();
+        
         // Add model information to the response
         const responseWithModel = {
           ...data,
@@ -224,64 +243,56 @@ export default function Home() {
           modelName: model.name
         };
         
+        // Replace the thinking message with the actual response
+        setMessages(prev => 
+          prev.map(msg => 
+            msg.id === thinkingId 
+              ? {
+                  id: responseWithModel.id || `response_${model.id}_${Date.now()}`,
+                  content: responseWithModel.content || "No response content received",
+                  role: 'assistant',
+                  timestamp: responseWithModel.timestamp || new Date().toISOString(),
+                  model: model.id,
+                  modelName: model.name
+                }
+              : msg
+          )
+        );
+        
         // Forward this AI's response to all other selected models
-        forwardMessageToOtherModels(responseWithModel.content, model.id);
+        if (responseWithModel.content) {
+          forwardMessageToOtherModels(responseWithModel.content, model.id);
+        }
         
         return responseWithModel;
-      })
-      .catch(error => {
+      } catch (error) {
         console.error(`Error with model ${model.name}:`, error);
-        // Return an error message for this specific model
-        return {
-          id: `error_${model.id}_${Date.now()}`,
-          content: `${model.name} failed to respond: ${error.message}`,
-          role: 'assistant',
-          timestamp: new Date().toISOString(),
-          model: model.id,
-          modelName: model.name
-        };
-      });
+        
+        // Replace the thinking message with an error message
+        setMessages(prev => 
+          prev.map(msg => 
+            msg.id === thinkingId 
+              ? {
+                  id: `error_${model.id}_${Date.now()}`,
+                  content: `${model.name} failed to respond: ${error.message}`,
+                  role: 'assistant',
+                  timestamp: new Date().toISOString(),
+                  model: model.id,
+                  modelName: model.name
+                }
+              : msg
+          )
+        );
+        
+        return null;
+      }
     });
     
-    // Also forward the user message to all selected models
-    // This ensures all models see the same user input
-    forwardMessageToOtherModels(content, '', true);
-    
-    // Wait for all model responses
+    // Wait for all model responses to complete (but we've already shown them in the UI)
     try {
-      const responses = await Promise.all(modelPromises);
-      
-      // Add all responses to the messages
-      setMessages(prev => {
-        // Keep all messages except any temporary ones
-        const filteredMessages = prev.filter(msg => msg.id && typeof msg.id === 'string' && !msg.id.startsWith('temp_'));
-        
-        // Add all model responses
-        return [
-          ...filteredMessages,
-          ...responses.map(response => ({
-            id: response.id || `response_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-            content: response.content,
-            role: response.role || 'assistant',
-            timestamp: response.timestamp || new Date().toISOString(),
-            model: response.model,
-            modelName: response.modelName
-          }))
-        ];
-      });
+      await Promise.all(modelPromises);
     } catch (error) {
       console.error('Error processing model responses:', error);
-      
-      // Add a general error message
-      setMessages(prev => [
-        ...prev,
-        {
-          id: `error_general_${Date.now()}`,
-          content: "There was a problem getting responses from the models. Please try again.",
-          role: 'assistant',
-          timestamp: new Date().toISOString()
-        }
-      ]);
     } finally {
       setIsLoading(false);
     }
