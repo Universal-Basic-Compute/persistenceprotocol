@@ -307,7 +307,7 @@ input:checked + .toggle-slider:before {
   background-color: var(--claude-3-opus-color);
 }
 
-.model-gpt_4o {
+.model-gpt_4o_mini_2025_04_16 {
   background-color: var(--claude-3-haiku-color);
 }
 

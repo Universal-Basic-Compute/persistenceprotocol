@@ -6,7 +6,7 @@ const MODELS = [
   'claude-3-7-sonnet-20240307',
   'claude-3-5-sonnet-20240620',
   'claude-3-opus-20240229',
-  'gpt-4o',
+  'gpt-4o-mini-2025-04-16',
   'gpt-4',
   'gpt-3.5-turbo'
 ];
