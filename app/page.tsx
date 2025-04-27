@@ -132,14 +132,23 @@ export default function Home() {
       setGeneratingImage(messageId);
       
       // Extract the model ID safely
-      const modelIdParts = messageId.split('_');
-      const modelId = modelIdParts.length > 1 ? modelIdParts[1] : null;
+      let targetModelId;
       
-      // If we can't determine the model ID, use the first selected model
-      const targetModelId = modelId || models.find(m => m.selected)?.id;
+      if (messageId && typeof messageId === 'string') {
+        const modelIdParts = messageId.split('_');
+        if (modelIdParts.length > 1) {
+          targetModelId = modelIdParts[1];
+        }
+      }
       
+      // If we couldn't extract the model ID, use the first selected model
       if (!targetModelId) {
-        throw new Error('Could not determine which model to use for image generation');
+        const firstSelectedModel = models.find(m => m.selected);
+        if (firstSelectedModel) {
+          targetModelId = firstSelectedModel.id;
+        } else {
+          throw new Error('No selected models available for image generation');
+        }
       }
       
       // Check if the chat state exists for this model
@@ -148,6 +157,7 @@ export default function Home() {
       }
       
       console.log(`Generating image with prompt: "${text.substring(0, 100)}..."`);
+      console.log(`Using model: ${targetModelId}`);
       
       // Update the request body to match the expected format
       const response = await fetch(
