@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --chat-user-bg: #f3f3f3;
-  --chat-system-bg: #ffffff;
-  --border-color: #e5e5e5;
+  --background: #F8F7F4; /* cream */
+  --foreground: #3C4043; /* soft-charcoal */
+  --chat-user-bg: #F6F6F1; /* ivory */
+  --chat-system-bg: #FCFCFC; /* soft-white */
+  --border-color: #E6E6E6; /* platinum */
   
-  /* Updated model-specific pastel colors - more distinct but still subtle */
-  --claude-3-7-sonnet-color: #e6f2ff;  /* Light blue */
-  --claude-3-5-sonnet-color: #e6fff2;  /* Light mint */
-  --claude-3-opus-color: #fff2e6;      /* Light peach */
-  --claude-3-haiku-color: #f2e6ff;     /* Light lavender */
-  --gpt-4o-color: #ffe6f2;             /* Light pink */
-  --gpt-4-turbo-color: #f2ffe6;        /* Light lime */
-  --default-model-color: #f5f5f5;      /* Light gray */
+  /* Updated model-specific pastel colors - using the new palette */
+  --claude-3-7-sonnet-color: #AEC5EB;  /* dusty-blue */
+  --claude-3-5-sonnet-color: #D1D9CE;  /* sage */
+  --claude-3-opus-color: #F5F5DC;      /* beige */
+  --claude-3-haiku-color: #E6CCB2;     /* light-wood */
+  --gpt-4o-color: #DDB892;             /* medium-wood */
+  --gpt-4-turbo-color: #DCDCDC;        /* gainsboro */
+  --default-model-color: #D3D3D3;      /* light-grey */
 }
 
 @theme inline {
@@ -26,20 +26,20 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --chat-user-bg: #1a1a1a;
-    --chat-system-bg: #0a0a0a;
-    --border-color: #333333;
+    --background: #3C4043; /* soft-charcoal */
+    --foreground: #F8F7F4; /* cream */
+    --chat-user-bg: #4A4F52; /* darker version of soft-charcoal */
+    --chat-system-bg: #3C4043; /* soft-charcoal */
+    --border-color: #5A5F62; /* even darker version of soft-charcoal */
     
-    /* Updated model-specific dark mode pastel colors - more distinct but still subtle */
-    --claude-3-7-sonnet-color: #0a1a2f;  /* Dark blue */
-    --claude-3-5-sonnet-color: #0a2f1a;  /* Dark green */
-    --claude-3-opus-color: #2f1a0a;      /* Dark brown */
-    --claude-3-haiku-color: #1a0a2f;     /* Dark purple */
-    --gpt-4o-color: #2f0a1a;             /* Dark red */
-    --gpt-4-turbo-color: #1a2f0a;        /* Dark olive */
-    --default-model-color: #1a1a1a;      /* Dark gray */
+    /* Updated model-specific dark mode colors */
+    --claude-3-7-sonnet-color: #5A7AB0;  /* darker dusty-blue */
+    --claude-3-5-sonnet-color: #8A9A8E;  /* darker sage */
+    --claude-3-opus-color: #B5B59C;      /* darker beige */
+    --claude-3-haiku-color: #A68B72;     /* darker light-wood */
+    --gpt-4o-color: #A67D52;             /* darker medium-wood */
+    --gpt-4-turbo-color: #9C9C9C;        /* darker gainsboro */
+    --default-model-color: #8A8A8A;      /* darker light-grey */
   }
 }
 
@@ -185,8 +185,8 @@ body {
   top: 0;
   bottom: 0;
   width: 280px;
-  background-color: #111;
-  color: #f5f5f5;
+  background-color: #3C4043; /* soft-charcoal */
+  color: #F8F7F4; /* cream */
   padding: 1.5rem;
   overflow-y: auto;
   transition: transform 0.3s ease;
@@ -202,8 +202,8 @@ body {
   top: 1rem;
   left: 1rem;
   z-index: 60;
-  background-color: #111;
-  color: #f5f5f5;
+  background-color: #3C4043; /* soft-charcoal */
+  color: #F8F7F4; /* cream */
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -212,11 +212,11 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.04); /* soft shadow */
 }
 
 .menu-toggle:hover {
-  background-color: #222;
+  background-color: #4A4F52; /* darker version of soft-charcoal */
 }
 
 .menu-section {
