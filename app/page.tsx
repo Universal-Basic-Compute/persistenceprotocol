@@ -228,19 +228,27 @@ export default function Home() {
   const handleGlobalInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setGlobalInput(e.target.value);
     
-    // Debounce the resize operation to improve performance
+    // Only resize the textarea when really needed
     if (globalTextareaRef.current) {
-      // Only resize if content might cause height change
+      // Store the current height to check if it actually changed
+      const currentHeight = globalTextareaRef.current.style.height;
+      
+      // Only resize on significant content changes that would affect height
       if (e.target.value.includes('\n') || 
-          e.target.value.length > 50 || 
-          e.target.value.length === 0) {
+          e.target.value.length === 0 || 
+          e.target.value.length % 20 === 0) { // Only check every 20 characters
         
-        // Use requestAnimationFrame for smoother performance
+        // Use requestAnimationFrame to batch DOM updates
         requestAnimationFrame(() => {
           const textarea = globalTextareaRef.current;
           if (textarea) {
             textarea.style.height = 'auto';
-            textarea.style.height = `${textarea.scrollHeight}px`;
+            const newHeight = `${textarea.scrollHeight}px`;
+            
+            // Only update if height actually changed
+            if (currentHeight !== newHeight) {
+              textarea.style.height = newHeight;
+            }
           }
         });
       }
