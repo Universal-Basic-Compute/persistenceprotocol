@@ -449,7 +449,7 @@ export default function Home() {
         if (otherModels.length > 0) {
           // Create a message that indicates which model generated this response
           const forwardMessage = {
-            message: `[ASSISTANT ${model.name}]: ${responseContent}`,
+            message: `[Message sent by ${model.name} in the conversation at ${new Date().toLocaleString()}]: ${responseContent}`,
             role: "assistant",
             metadata: {
               source: "global_message",
@@ -497,7 +497,7 @@ export default function Home() {
                   ...prev[otherModel.id].messages,
                   {
                     id: forwardedMessageId,
-                    content: `[ASSISTANT ${model.name}]: ${responseContent}`,
+                    content: `[Message sent by ${model.name} in the conversation at ${new Date().toLocaleString()}]: ${responseContent}`,
                     role: 'assistant',
                     timestamp: new Date().toISOString(),
                     model: model.id, // Keep track of the original model
