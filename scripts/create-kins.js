@@ -33,27 +33,32 @@ async function createKin(modelId) {
     
     if (response.status === 409) {
       console.log(`Kin for ${modelId} already exists:`, data.existing_kin);
-      // Return a properly formatted result for existing kins
+      // Return a properly formatted result for existing kins, but force the ID to match the model ID
       return {
         name: modelId,
-        id: data.existing_kin.id || 'unknown-id'
+        id: modelId // Force the kin_id to be the model ID regardless of what the API returned
       };
     } else if (!response.ok) {
       throw new Error(`Failed to create kin for ${modelId}: ${JSON.stringify(data)}`);
     }
     
-    console.log(`Successfully created kin for ${modelId}:`, data);
-    // Return a properly formatted result for newly created kins
+    // Override the returned kin_id with the model ID to ensure consistency
+    console.log(`Successfully created kin for ${modelId}:`, {
+      ...data,
+      id: modelId // Force the kin_id to be the model ID
+    });
+    
+    // Return a properly formatted result for newly created kins with forced ID
     return {
       name: modelId,
-      id: data.id || 'unknown-id'
+      id: modelId // Force the kin_id to be the model ID regardless of what the API returned
     };
   } catch (error) {
     console.error(`Error creating kin for ${modelId}:`, error);
-    // Return a properly formatted error result
+    // Return a properly formatted error result, but still use the model ID
     return {
       name: modelId,
-      id: 'error',
+      id: modelId, // Keep the model ID even in error cases
       error: error.message
     };
   }
