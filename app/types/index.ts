@@ -8,6 +8,7 @@ export type Message = {
   imageUrl?: string;
   images?: string[]; // Array of image URLs or base64 data
   channel_id?: string; // Add channel_id field
+  forwarded?: boolean; // Flag to indicate if this message was forwarded from another model
 };
 
 export type Model = {

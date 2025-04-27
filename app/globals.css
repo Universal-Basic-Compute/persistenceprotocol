@@ -564,6 +564,12 @@ input:checked + .toggle-slider:before {
   margin-top: 0.5rem;
 }
 
+/* Forwarded message styling */
+.message[data-forwarded="true"] {
+  opacity: 0.9;
+  border-left-style: dashed !important;
+}
+
 /* Message actions container */
 .message-actions {
   display: flex;

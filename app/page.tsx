@@ -440,6 +440,74 @@ export default function Home() {
           };
         });
         
+        // Now add this model's response to all other selected models using add-message
+        const otherModels = selectedModels.filter(m => m.id !== model.id);
+        
+        if (otherModels.length > 0) {
+          // Create a message that indicates which model generated this response
+          const forwardMessage = {
+            message: `[Response from ${model.name}]: ${responseContent}`,
+            role: "assistant",
+            metadata: {
+              source: "global_message",
+              original_model: model.id,
+              original_message_id: responseWithModel.id || thinkingId
+            }
+          };
+          
+          // Send this response to all other models using add-message
+          const forwardPromises = otherModels.map(otherModel => 
+            fetch(
+              `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${otherModel.id}/add-message`,
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(forwardMessage),
+              }
+            )
+            .then(response => {
+              if (!response.ok) {
+                console.error(`Failed to forward message to ${otherModel.name}: ${response.status}`);
+              }
+              return response.ok;
+            })
+            .catch(error => {
+              console.error(`Error forwarding message to ${otherModel.name}:`, error);
+              return false;
+            })
+          );
+          
+          // Execute all forwarding requests
+          const forwardResults = await Promise.all(forwardPromises);
+          console.log(`Forwarded response to ${forwardResults.filter(Boolean).length}/${otherModels.length} other models`);
+          
+          // Update the UI to show the forwarded messages in other chats
+          otherModels.forEach(otherModel => {
+            const forwardedMessageId = `forwarded_${model.id}_to_${otherModel.id}_${Date.now()}`;
+            setChats(prev => ({
+              ...prev,
+              [otherModel.id]: {
+                ...prev[otherModel.id],
+                messages: [
+                  ...prev[otherModel.id].messages,
+                  {
+                    id: forwardedMessageId,
+                    content: `[Response from ${model.name}]: ${responseContent}`,
+                    role: 'assistant',
+                    timestamp: new Date().toISOString(),
+                    model: model.id, // Keep track of the original model
+                    modelName: model.name, // Keep track of the original model name
+                    channel_id: 'default',
+                    forwarded: true // Mark as forwarded message
+                  }
+                ]
+              }
+            }));
+          });
+        }
+        
         return true;
       } catch (error) {
         console.error(`Error with model ${model.name}:`, error);

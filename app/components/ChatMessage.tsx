@@ -83,10 +83,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
       className={`message ${message.role === 'user' ? 
         (message.images && message.images.length > 0 ? 'user-message user-message-with-images' : 'user-message') : 
         message.model ? `system-message model-${message.model.replace(/[^a-zA-Z0-9]/g, '_')}` : 'system-message model-default'}`}
+      data-forwarded={message.forwarded ? "true" : "false"}
     >
       {message.role === 'assistant' && (
         <div 
-          className="text-xs font-bold mb-1 pb-1 border-b border-gray-200" 
+          className={`text-xs font-bold mb-1 pb-1 border-b border-gray-200 ${message.forwarded ? 'italic opacity-80' : ''}`}
         >
           {message.model ? 
             (models.find(m => m.id === message.model)?.name || message.modelName || 'AI') : 
