@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Button from './Button';
 
 interface GlobalInputProps {
@@ -28,6 +28,26 @@ const GlobalInput: React.FC<GlobalInputProps> = ({
   onKeyDown,
   textareaRef
 }) => {
+  // Add global keyboard shortcut to focus the input
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Alt+G to focus the global input
+      if (e.altKey && e.key === 'g') {
+        e.preventDefault();
+        if (isGlobalInputCollapsed) {
+          onToggleCollapse();
+        }
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [isGlobalInputCollapsed, onToggleCollapse, textareaRef]);
   return (
     <div 
       className={`global-input-container ${isGlobalInputCollapsed ? 'collapsed' : ''}`}

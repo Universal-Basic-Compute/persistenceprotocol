@@ -63,6 +63,9 @@ async function linkKinToRepo(kinId, retryCount = 0) {
       console.log(`Kin ${kinId} exists, proceeding with linking...`);
     }
     
+    // Skip repository creation since repositories already exist
+    console.log(`Using existing repository for ${kinId}: ${repoUrl}`);
+    
     // Now try to link the repository
     console.log(`Sending link-repo request for ${kinId}...`);
     console.log(`Repository URL: ${repoUrl}`);
