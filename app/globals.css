@@ -299,7 +299,7 @@ input:checked + .toggle-slider:before {
   background-color: var(--claude-3-haiku-color);
 }
 
-.model-gpt-4\\.1-2025-04-14 {
+.model-gpt-4\.1-2025-04-14 {
   background-color: var(--gpt-4o-color);
 }
 
