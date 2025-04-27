@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Button from './components/Button';
 import ReactMarkdown from 'react-markdown';
 import { ErrorBoundary } from 'react-error-boundary';
 import { API_BASE_URL, BLUEPRINT_ID, AVAILABLE_MODELS, SYSTEM_PROMPT } from './api/config';
@@ -838,13 +839,15 @@ export default function Home() {
   return (
     <div className="app-container">
       {/* Menu Toggle Button */}
-      <button 
+      <Button 
+        variant="ghost"
+        size="sm"
         className="menu-toggle" 
         onClick={() => toggleMenu()}
         aria-label={menuOpen ? "Close menu" : "Open menu"}
       >
         {menuOpen ? "×" : "≡"}
-      </button>
+      </Button>
       
       {/* Side Menu */}
       <div className={`side-menu ${menuOpen ? '' : 'side-menu-hidden'}`}>
@@ -941,13 +944,16 @@ export default function Home() {
               ))}
             </div>
             
-            <button 
-              className="global-send-button"
+            <Button 
+              variant="primary"
+              size="sm"
               onClick={sendGlobalMessage}
               disabled={isGlobalLoading || (globalInput.trim() === '' && globalImages.length === 0)}
+              isLoading={isGlobalLoading}
+              className="global-send-button"
             >
-              {isGlobalLoading ? 'Sending...' : 'Send to All'}
-            </button>
+              Send to All
+            </Button>
           </div>
         </div>
       </div>
@@ -993,13 +999,15 @@ export default function Home() {
                   >
                     ⋮
                   </button>
-                  <button 
+                  <Button 
+                    variant="ghost"
+                    size="sm"
                     className="fullscreen-button" 
                     onClick={() => toggleFullscreen(model.id)}
                     aria-label={fullscreenChat === model.id ? "Exit fullscreen" : "Enter fullscreen"}
                   >
                     {fullscreenChat === model.id ? '⊖' : '⊕'}
-                  </button>
+                  </Button>
                 </div>
                 
                 {/* Chat menu */}
@@ -1074,7 +1082,9 @@ export default function Home() {
                         {/* Only show TTS and illustrate buttons for assistant messages */}
                         {message.role === 'assistant' && (
                           <>
-                            <button 
+                            <Button 
+                              variant="ghost"
+                              size="sm"
                               className={`action-button tts-button ${playingAudio === message.id ? 'action-active' : ''}`}
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1086,10 +1096,13 @@ export default function Home() {
                               }}
                               disabled={playingAudio !== null && playingAudio !== message.id}
                               aria-label="Text to speech"
+                              isLoading={playingAudio === message.id}
                             >
-                              {playingAudio === message.id ? 'Playing...' : 'Voice'}
-                            </button>
-                            <button 
+                              Voice
+                            </Button>
+                            <Button 
+                              variant="ghost"
+                              size="sm"
                               className={`action-button illustrate-button ${generatingImage === message.id ? 'action-active' : ''}`}
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1102,9 +1115,10 @@ export default function Home() {
                               }}
                               disabled={generatingImage !== null}
                               aria-label="Generate illustration"
+                              isLoading={generatingImage === message.id}
                             >
-                              {generatingImage === message.id ? 'Creating...' : 'Illustrate'}
-                            </button>
+                              Illustrate
+                            </Button>
                           </>
                         )}
                       </div>
@@ -1161,15 +1175,18 @@ export default function Home() {
                     boxSizing: 'border-box'
                   }}
                 />
-                <button 
-                  className="send-button text-sm"
+                <Button 
+                  variant="primary"
+                  size="sm"
                   onClick={() => sendMessage(model.id)}
                   disabled={chats[model.id]?.isLoading || 
                     (chats[model.id]?.inputValue.trim() === '' && 
                      chats[model.id]?.imageDataArray.length === 0)}
+                  isLoading={chats[model.id]?.isLoading}
+                  className="send-button"
                 >
                   Send
-                </button>
+                </Button>
               </div>
             </div>
           ))}
