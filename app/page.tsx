@@ -451,8 +451,19 @@ export default function Home() {
       // Set loading state for this message
       setGeneratingImage(messageId);
       
+      // Extract the model ID safely
+      const modelIdParts = messageId.split('_');
+      const modelId = modelIdParts.length > 1 ? modelIdParts[1] : null;
+      
+      // If we can't determine the model ID, use the first selected model
+      const targetModelId = modelId || models.find(m => m.selected)?.id;
+      
+      if (!targetModelId) {
+        throw new Error('Could not determine which model to use for image generation');
+      }
+      
       const response = await fetch(
-        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${messageId.split('_')[1]}/images`,
+        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${targetModelId}/images`,
         {
           method: 'POST',
           headers: {
@@ -474,17 +485,26 @@ export default function Home() {
       const data = await response.json();
       
       // Add the generated image to the message
-      setChats(prev => ({
-        ...prev,
-        [messageId.split('_')[1]]: {
-          ...prev[messageId.split('_')[1]],
-          messages: prev[messageId.split('_')[1]].messages.map(msg => 
-            msg.id === messageId 
-              ? { ...msg, imageUrl: data.data.url }
-              : msg
-          )
+      setChats(prev => {
+        // Find the correct model to update
+        const modelToUpdate = targetModelId;
+        
+        if (!prev[modelToUpdate]) {
+          throw new Error(`Model ${modelToUpdate} not found in chats state`);
         }
-      }));
+        
+        return {
+          ...prev,
+          [modelToUpdate]: {
+            ...prev[modelToUpdate],
+            messages: prev[modelToUpdate].messages.map(msg => 
+              msg.id === messageId 
+                ? { ...msg, imageUrl: data.data.url }
+                : msg
+            )
+          }
+        };
+      });
       
       // Clear loading state
       setGeneratingImage(null);
