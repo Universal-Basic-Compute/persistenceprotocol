@@ -165,7 +165,7 @@ export function useChat(models: Model[]) {
       const requestBody: any = {
         content: content,
         model: modelId,
-        mode: 'creative',
+        mode: "creative",
         history_length: 25,
         addSystem: SYSTEM_PROMPT,
         min_files: 5,
@@ -179,17 +179,6 @@ export function useChat(models: Model[]) {
       
       // Add the SPEC.md file as context
       requestBody.addContext = ["docs/SPEC.md"];
-      
-      // Prepare request body with all required parameters
-      const requestBody: any = {
-        content: content,
-        model: modelId,
-        mode: "creative",
-        history_length: 25,
-        addSystem: SYSTEM_PROMPT,
-        min_files: 5,
-        max_files: 15
-      };
       
       // Only add images if there are any
       if (images.length > 0) {
