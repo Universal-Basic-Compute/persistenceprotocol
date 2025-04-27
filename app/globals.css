@@ -873,6 +873,65 @@ input:checked + .toggle-slider:before {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(139, 109, 76, 0.05);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 109, 76, 0.15);
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 109, 76, 0.25);
+}
+
+/* Dark mode scrollbar */
+.dark::-webkit-scrollbar-track {
+  background: rgba(139, 109, 76, 0.1);
+}
+
+.dark::-webkit-scrollbar-thumb {
+  background: rgba(139, 109, 76, 0.25);
+  border: 2px solid rgba(0, 0, 0, 0.5);
+}
+
+.dark::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 109, 76, 0.35);
+}
+
+/* Hide scrollbar when not in use, but maintain functionality */
+.messages-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 109, 76, 0.15) rgba(139, 109, 76, 0.05);
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+  visibility: hidden;
+}
+
+.messages-container:hover::-webkit-scrollbar-thumb {
+  visibility: visible;
+}
+
+/* Firefox specific scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 109, 76, 0.15) rgba(139, 109, 76, 0.05);
+}
+
+.dark * {
+  scrollbar-color: rgba(139, 109, 76, 0.25) rgba(139, 109, 76, 0.1);
+}
+
 /* Make all text smaller in the chat grid */
 .chat-grid-item {
   font-size: 0.65rem; /* Reduced from 0.75rem */
