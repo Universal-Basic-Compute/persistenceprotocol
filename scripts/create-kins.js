@@ -24,6 +24,7 @@ async function createKin(modelId) {
         },
         body: JSON.stringify({
           name: modelId,
+          id: modelId, // Explicitly set the kin_id to match the model ID
         }),
       }
     );
