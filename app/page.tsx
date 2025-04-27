@@ -40,7 +40,7 @@ const AVAILABLE_MODELS: Model[] = [
   { id: 'claude-3-5-sonnet-latest', name: 'Claude 3.5 Sonnet', description: 'Balanced performance', selected: true },
   { id: 'claude-3-opus-latest', name: 'Claude 3 Opus', description: 'Highest capability', selected: true },
   { id: 'claude-3-haiku-latest', name: 'Claude 3 Haiku', description: 'Fast responses', selected: true },
-  { id: 'gpt-4.1-2025-04-14', name: 'GPT-4o', description: 'OpenAI\'s latest model', selected: true },
+  { id: 'gpt-4.1-2025-04-14', name: 'GPT4.1', description: 'OpenAI\'s latest model', selected: true },
   { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', description: 'OpenAI\'s reliable model', selected: true },
 ];
 
