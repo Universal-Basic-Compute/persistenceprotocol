@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 
 type Message = {
   id: string;
@@ -413,7 +414,11 @@ export default function Home() {
                           'Persistence Protocol'}
                       </div>
                     )}
-                    <p className="whitespace-pre-wrap text-sm">{message.content}</p>
+                    <div className="markdown-content">
+                      <ReactMarkdown>
+                        {message.content}
+                      </ReactMarkdown>
+                    </div>
                     <div className="text-xs opacity-50 mt-1" key={`time_${message.id || Date.now()}`}>
                       {formatTimestamp(message.timestamp)}
                     </div>
@@ -421,7 +426,7 @@ export default function Home() {
                 ))}
                 {chats[model.id]?.isLoading && (
                   <div className="message system-message" key={`loading-message-${model.id}`}>
-                    <p>Thinking...</p>
+                    <p className="text-xs">Thinking...</p>
                   </div>
                 )}
                 <div ref={el => messagesEndRefs.current[model.id] = el} />

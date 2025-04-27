@@ -99,7 +99,7 @@ body {
   padding: 0.5rem;
   border-radius: 0.25rem;
   max-width: 90%;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
 }
 
 .input-container {
@@ -309,6 +309,100 @@ input:checked + .toggle-slider:before {
 
 .model-default {
   background-color: var(--default-model-color);
+}
+
+/* Markdown content styling */
+.markdown-content {
+  font-size: 0.75rem; /* Extra small text */
+  line-height: 1.4;
+}
+
+.markdown-content h1 {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content h2 {
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content h3, 
+.markdown-content h4, 
+.markdown-content h5, 
+.markdown-content h6 {
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content p {
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content ul, 
+.markdown-content ol {
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content li {
+  margin-bottom: 0.25rem;
+}
+
+.markdown-content code {
+  font-family: monospace;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0.1rem 0.2rem;
+  border-radius: 0.2rem;
+  font-size: 0.7rem;
+}
+
+.markdown-content pre {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  overflow-x: auto;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.markdown-content blockquote {
+  border-left: 2px solid var(--border-color);
+  padding-left: 0.5rem;
+  margin-left: 0.5rem;
+  color: rgba(var(--foreground-rgb), 0.8);
+}
+
+.markdown-content a {
+  color: #0066cc;
+  text-decoration: underline;
+}
+
+/* Make all text smaller in the chat grid */
+.chat-grid-item {
+  font-size: 0.75rem;
+}
+
+.chat-header h2 {
+  font-size: 0.85rem;
+}
+
+.chat-grid-item .message-input {
+  font-size: 0.75rem;
+}
+
+.chat-grid-item .send-button {
+  font-size: 0.75rem;
 }
 
 /* Adjust main content when menu is open */
