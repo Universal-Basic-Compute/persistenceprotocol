@@ -161,19 +161,43 @@ export function useChat(models: Model[]) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
       
-      // Prepare request body
+      // Prepare request body with all required parameters
       const requestBody: any = {
         content: content,
         model: modelId,
         mode: 'creative',
         history_length: 25,
-        addSystem: SYSTEM_PROMPT
+        addSystem: SYSTEM_PROMPT,
+        min_files: 5,
+        max_files: 15
       };
       
       // Only add images if there are any
       if (images.length > 0) {
         requestBody.images = images;
       }
+      
+      // Add the SPEC.md file as context
+      requestBody.addContext = ["docs/SPEC.md"];
+      
+      // Prepare request body with all required parameters
+      const requestBody: any = {
+        content: content,
+        model: modelId,
+        mode: "creative",
+        history_length: 25,
+        addSystem: SYSTEM_PROMPT,
+        min_files: 5,
+        max_files: 15
+      };
+      
+      // Only add images if there are any
+      if (images.length > 0) {
+        requestBody.images = images;
+      }
+      
+      // Add the SPEC.md file as context
+      requestBody.addContext = ["docs/SPEC.md"];
       
       // Send the message to the API with images
       const response = await fetch(
@@ -192,11 +216,21 @@ export function useChat(models: Model[]) {
       clearTimeout(timeoutId);
       
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }));
         throw new Error(`API request failed with status ${response.status}: ${JSON.stringify(errorData)}`);
       }
       
       const data = await response.json();
+      console.log(`Received response for ${modelId}:`, data); // Add this log to see the actual response
+      
+      // Check if the response has content
+      if (!data.content && data.status === 'completed') {
+        // If status is completed but no content, use a fallback message
+        data.content = "I've processed your request, but I don't have a specific response to provide at this moment.";
+      } else if (!data.content) {
+        // If no content and not completed, throw an error
+        throw new Error(`Received empty content from API for ${modelId}`);
+      }
       
       // Add model information to the response
       const responseWithModel = {
