@@ -602,7 +602,7 @@ export default function Home() {
                           disabled={playingAudio !== null && playingAudio !== message.id}
                           aria-label="Text to speech"
                         >
-                          {playingAudio === message.id ? 'Playing...' : 'Speak'}
+                          {playingAudio === message.id ? 'Playing...' : 'Voice'}
                         </button>
                         <button 
                           className={`action-button illustrate-button ${generatingImage === message.id ? 'action-active' : ''}`}
