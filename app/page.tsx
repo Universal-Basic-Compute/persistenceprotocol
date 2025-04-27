@@ -896,7 +896,7 @@ export default function Home() {
                     key={message.id || `msg_${model.id}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`}
                     className={`message ${message.role === 'user' ? 
                       (message.images && message.images.length > 0 ? 'user-message user-message-with-images' : 'user-message') : 
-                      message.model ? `system-message model-${message.model}` : 'system-message model-default'}`}
+                      message.model ? `system-message model-${message.model.replace(/\./g, '_')}` : 'system-message model-default'}`}
                   >
                     {message.role === 'assistant' && (
                       <div 
