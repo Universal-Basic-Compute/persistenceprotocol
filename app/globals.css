@@ -89,6 +89,7 @@ body {
   overflow: hidden;
   margin-bottom: 1rem;
   align-items: stretch;
+  min-height: 100px; /* Add minimum height to container */
 }
 
 .message-input {
@@ -101,7 +102,9 @@ body {
   color: var(--foreground);
   resize: none;
   line-height: 1.5;
-  min-height: 80px;
+  min-height: 100px; /* Increase minimum height */
+  height: auto; /* Allow height to grow */
+  box-sizing: border-box; /* Ensure padding is included in height */
 }
 
 .send-button {
@@ -113,6 +116,8 @@ body {
   transition: opacity 0.2s;
   align-self: flex-end;
   height: auto;
+  display: flex;
+  align-items: center;
 }
 
 .send-button:hover {

@@ -439,7 +439,11 @@ export default function Home() {
             placeholder="Type your message here... (Shift+Enter for new line)"
             rows={3}
             disabled={isLoading}
-            style={{ minHeight: '80px' }}
+            style={{ 
+              minHeight: '100px', 
+              height: 'auto',
+              boxSizing: 'border-box'
+            }}
           />
           <button 
             className="send-button" 
