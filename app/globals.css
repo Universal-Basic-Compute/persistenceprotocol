@@ -388,12 +388,18 @@ input:checked + .toggle-slider:before {
   text-decoration: underline;
 }
 
-/* Message footer with timestamp and TTS button */
+/* Message footer with timestamp and action buttons */
 .message-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 0.5rem;
+}
+
+/* Message actions container */
+.message-actions {
+  display: flex;
+  gap: 0.5rem;
 }
 
 /* TTS button styling */
@@ -438,8 +444,64 @@ input:checked + .toggle-slider:before {
   }
 }
 
+/* Illustrate button styling */
+.illustrate-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  padding: 0.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.illustrate-button:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.illustrate-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
+.illustrate-generating {
+  opacity: 1;
+  animation: spin 1.5s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Generated image container and styling */
+.message-image-container {
+  margin-top: 0.75rem;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 0.25rem;
+}
+
+.message-image {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 0.25rem;
+  border: 1px solid var(--border-color);
+}
+
 /* Dark mode adjustments */
-.dark .tts-button:hover {
+.dark .tts-button:hover,
+.dark .illustrate-button:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
 

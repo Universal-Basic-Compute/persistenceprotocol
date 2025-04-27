@@ -10,6 +10,7 @@ type Message = {
   timestamp: string | Date;
   model?: string;
   modelName?: string;
+  imageUrl?: string;
 };
 
 type Model = {
@@ -45,6 +46,7 @@ export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
   const [chats, setChats] = useState<Record<string, ChatState>>({});
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
+  const [generatingImage, setGeneratingImage] = useState<string | null>(null);
   const [fullscreenChat, setFullscreenChat] = useState<string | null>(null);
   const messagesEndRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
@@ -371,6 +373,55 @@ export default function Home() {
     }
   };
 
+  const generateImage = async (text: string, messageId: string) => {
+    try {
+      // Set loading state for this message
+      setGeneratingImage(messageId);
+      
+      const response = await fetch(
+        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${messageId.split('_')[1]}/images`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            prompt: text,
+            aspect_ratio: "ASPECT_1_1",
+            model: "V_2",
+            magic_prompt_option: "AUTO"
+          }),
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error(`Image generation API request failed with status ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Add the generated image to the message
+      setChats(prev => ({
+        ...prev,
+        [messageId.split('_')[1]]: {
+          ...prev[messageId.split('_')[1]],
+          messages: prev[messageId.split('_')[1]].messages.map(msg => 
+            msg.id === messageId 
+              ? { ...msg, imageUrl: data.data.url }
+              : msg
+          )
+        }
+      }));
+      
+      // Clear loading state
+      setGeneratingImage(null);
+    } catch (error) {
+      console.error('Error generating image:', error);
+      setGeneratingImage(null);
+      // Could add error notification here
+    }
+  };
+
   const toggleModel = (modelId: string) => {
     setModels(prevModels => 
       prevModels.map(model => 
@@ -487,21 +538,48 @@ export default function Home() {
                       <div className="text-xs opacity-50" key={`time_${message.id || Date.now()}`}>
                         {formatTimestamp(message.timestamp)}
                       </div>
-                      <button 
-                        className={`tts-button ${playingAudio === message.id ? 'tts-playing' : ''}`}
-                        onClick={() => {
-                          if (playingAudio === message.id) {
-                            setPlayingAudio(null);
-                          } else {
-                            textToSpeech(message.content, message.id);
-                          }
-                        }}
-                        disabled={playingAudio !== null && playingAudio !== message.id}
-                        aria-label="Text to speech"
-                      >
-                        {playingAudio === message.id ? '🔊' : '🔈'}
-                      </button>
+                      <div className="message-actions">
+                        <button 
+                          className={`tts-button ${playingAudio === message.id ? 'tts-playing' : ''}`}
+                          onClick={() => {
+                            if (playingAudio === message.id) {
+                              setPlayingAudio(null);
+                            } else {
+                              textToSpeech(message.content, message.id);
+                            }
+                          }}
+                          disabled={playingAudio !== null && playingAudio !== message.id}
+                          aria-label="Text to speech"
+                        >
+                          {playingAudio === message.id ? '🔊' : '🔈'}
+                        </button>
+                        <button 
+                          className={`illustrate-button ${generatingImage === message.id ? 'illustrate-generating' : ''}`}
+                          onClick={() => {
+                            if (generatingImage === message.id) {
+                              // Already generating, do nothing
+                              return;
+                            } else {
+                              generateImage(message.content, message.id);
+                            }
+                          }}
+                          disabled={generatingImage !== null}
+                          aria-label="Generate illustration"
+                        >
+                          {generatingImage === message.id ? '⏳' : '🖼️'}
+                        </button>
+                      </div>
                     </div>
+                    {message.imageUrl && (
+                      <div className="message-image-container">
+                        <img 
+                          src={message.imageUrl} 
+                          alt="Generated illustration" 
+                          className="message-image"
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
                   </div>
                 ))}
                 {chats[model.id]?.isLoading && (
