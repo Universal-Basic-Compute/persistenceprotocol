@@ -11,9 +11,9 @@ const MODELS = [
   'gpt-4o'
 ];
 
-async function linkKinToRepo(kinId) {
+async function linkKinToRepo(kinId, retryCount = 0) {
   try {
-    console.log(`Linking kin ${kinId} to GitHub repository...`);
+    console.log(`Linking kin ${kinId} to GitHub repository... (Attempt ${retryCount + 1})`);
     
     const response = await fetch(
       `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${kinId}/link-repo`,
@@ -29,12 +29,29 @@ async function linkKinToRepo(kinId) {
       }
     );
     
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }));
-      throw new Error(`Failed to link kin ${kinId} to repo: ${JSON.stringify(errorData)}`);
+    // Get the response as text first
+    const responseText = await response.text();
+    
+    // Try to parse as JSON, but handle non-JSON responses
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      data = { text: responseText };
     }
     
-    const data = await response.json();
+    if (!response.ok) {
+      // If we get a 429 (Too Many Requests) or 503 (Service Unavailable), retry
+      if ((response.status === 429 || response.status === 503) && retryCount < 3) {
+        const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+        console.log(`Rate limited or service unavailable. Retrying in ${delay/1000} seconds...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return linkKinToRepo(kinId, retryCount + 1);
+      }
+      
+      throw new Error(`Failed to link kin ${kinId} to repo: ${JSON.stringify(data)}`);
+    }
+    
     console.log(`Successfully linked kin ${kinId} to repository:`, data);
     
     return {
@@ -44,6 +61,15 @@ async function linkKinToRepo(kinId) {
     };
   } catch (error) {
     console.error(`Error linking kin ${kinId} to repository:`, error);
+    
+    // If we haven't reached max retries, try again
+    if (retryCount < 3) {
+      const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+      console.log(`Error occurred. Retrying in ${delay/1000} seconds...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return linkKinToRepo(kinId, retryCount + 1);
+    }
+    
     return {
       kin_id: kinId,
       status: 'error',
@@ -61,6 +87,12 @@ async function linkAllKins() {
   for (const kinId of MODELS) {
     const result = await linkKinToRepo(kinId);
     results.push(result);
+    
+    // Add a delay between requests to avoid rate limiting
+    if (MODELS.indexOf(kinId) < MODELS.length - 1) {
+      console.log('Waiting 2 seconds before next request...');
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
   }
   
   console.log('Kin-repository linking process completed.');
