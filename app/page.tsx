@@ -436,9 +436,10 @@ export default function Home() {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type your message here..."
-            rows={1}
+            placeholder="Type your message here... (Shift+Enter for new line)"
+            rows={3}
             disabled={isLoading}
+            style={{ minHeight: '80px' }}
           />
           <button 
             className="send-button" 

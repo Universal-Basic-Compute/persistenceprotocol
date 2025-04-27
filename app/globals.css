@@ -88,6 +88,7 @@ body {
   border-radius: 0.5rem;
   overflow: hidden;
   margin-bottom: 1rem;
+  align-items: stretch;
 }
 
 .message-input {
@@ -99,6 +100,8 @@ body {
   background: var(--background);
   color: var(--foreground);
   resize: none;
+  line-height: 1.5;
+  min-height: 80px;
 }
 
 .send-button {
@@ -108,6 +111,8 @@ body {
   border: none;
   cursor: pointer;
   transition: opacity 0.2s;
+  align-self: flex-end;
+  height: auto;
 }
 
 .send-button:hover {
