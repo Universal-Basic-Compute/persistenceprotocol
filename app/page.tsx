@@ -45,6 +45,7 @@ export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
   const [chats, setChats] = useState<Record<string, ChatState>>({});
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
+  const [fullscreenChat, setFullscreenChat] = useState<string | null>(null);
   const messagesEndRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
 
@@ -379,6 +380,14 @@ export default function Home() {
       )
     );
   };
+  
+  const toggleFullscreen = (modelId: string) => {
+    if (fullscreenChat === modelId) {
+      setFullscreenChat(null);
+    } else {
+      setFullscreenChat(modelId);
+    }
+  };
 
   return (
     <>
@@ -437,9 +446,19 @@ export default function Home() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {models.filter(model => model.selected).map(model => (
-            <div key={model.id} className="chat-grid-item border border-gray-200 rounded-lg overflow-hidden flex flex-col h-[500px]">
+            <div 
+              key={model.id} 
+              className={`chat-grid-item border border-gray-200 rounded-lg overflow-hidden flex flex-col h-[500px] relative ${fullscreenChat === model.id ? 'chat-fullscreen' : ''}`}
+            >
               <div className="chat-header p-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200">
                 <h2 className="font-semibold">{model.name}</h2>
+                <button 
+                  className="fullscreen-button" 
+                  onClick={() => toggleFullscreen(model.id)}
+                  aria-label={fullscreenChat === model.id ? "Exit fullscreen" : "Enter fullscreen"}
+                >
+                  {fullscreenChat === model.id ? '⊖' : '⊕'}
+                </button>
               </div>
               
               <div className="messages-container flex-grow overflow-y-auto p-3">

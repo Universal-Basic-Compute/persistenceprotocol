@@ -313,19 +313,19 @@ input:checked + .toggle-slider:before {
 
 /* Markdown content styling */
 .markdown-content {
-  font-size: 0.75rem; /* Extra small text */
-  line-height: 1.4;
+  font-size: 0.65rem; /* Reduced from 0.75rem */
+  line-height: 1.3;
 }
 
 .markdown-content h1 {
-  font-size: 1rem;
+  font-size: 0.9rem; /* Reduced from 1rem */
   font-weight: bold;
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
 }
 
 .markdown-content h2 {
-  font-size: 0.9rem;
+  font-size: 0.8rem; /* Reduced from 0.9rem */
   font-weight: bold;
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
@@ -335,7 +335,7 @@ input:checked + .toggle-slider:before {
 .markdown-content h4, 
 .markdown-content h5, 
 .markdown-content h6 {
-  font-size: 0.8rem;
+  font-size: 0.7rem; /* Reduced from 0.8rem */
   font-weight: bold;
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
@@ -360,7 +360,7 @@ input:checked + .toggle-slider:before {
   background-color: rgba(0, 0, 0, 0.05);
   padding: 0.1rem 0.2rem;
   border-radius: 0.2rem;
-  font-size: 0.7rem;
+  font-size: 0.6rem; /* Reduced from 0.7rem */
 }
 
 .markdown-content pre {
@@ -445,19 +445,70 @@ input:checked + .toggle-slider:before {
 
 /* Make all text smaller in the chat grid */
 .chat-grid-item {
-  font-size: 0.75rem;
+  font-size: 0.65rem; /* Reduced from 0.75rem */
 }
 
 .chat-header h2 {
-  font-size: 0.85rem;
+  font-size: 0.75rem; /* Reduced from 0.85rem */
 }
 
 .chat-grid-item .message-input {
-  font-size: 0.75rem;
+  font-size: 0.65rem; /* Reduced from 0.75rem */
 }
 
 .chat-grid-item .send-button {
+  font-size: 0.65rem; /* Reduced from 0.75rem */
+}
+
+/* Add fullscreen button styles */
+.fullscreen-button {
+  background: none;
+  border: none;
+  cursor: pointer;
   font-size: 0.75rem;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  padding: 0.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+}
+
+.fullscreen-button:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Fullscreen chat styles */
+.chat-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  background-color: var(--background);
+  border-radius: 0;
+  height: 100vh !important;
+  width: 100vw;
+}
+
+.chat-fullscreen .messages-container {
+  height: calc(100vh - 120px);
+}
+
+.chat-fullscreen .chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-fullscreen .fullscreen-button {
+  position: static;
 }
 
 /* Adjust main content when menu is open */
