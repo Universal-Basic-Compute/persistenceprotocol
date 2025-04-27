@@ -11,6 +11,7 @@ type Message = {
   model?: string;
   modelName?: string;
   imageUrl?: string;
+  images?: string[]; // Array of image URLs or base64 data
 };
 
 type Model = {
@@ -24,6 +25,7 @@ type ChatState = {
   messages: Message[];
   inputValue: string;
   isLoading: boolean;
+  imageDataArray: string[]; // Array of base64 image data
 };
 
 // KinOS API endpoints and configuration
@@ -83,7 +85,8 @@ export default function Home() {
       initialChats[model.id] = {
         messages: [],
         inputValue: '',
-        isLoading: false
+        isLoading: false,
+        imageDataArray: [] // Initialize empty array for images
       };
     });
     setChats(initialChats);
@@ -118,6 +121,49 @@ export default function Home() {
       textarea.style.height = 'auto';
       textarea.style.height = `${textarea.scrollHeight}px`;
     }
+  };
+  
+  // Handle image uploads
+  const handleImageUpload = (modelId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const filePromises: Promise<string>[] = [];
+      
+      // Process each file
+      Array.from(e.target.files).forEach(file => {
+        const reader = new FileReader();
+        
+        const filePromise = new Promise<string>((resolve) => {
+          reader.onload = () => {
+            const base64String = reader.result as string;
+            resolve(base64String);
+          };
+        });
+        
+        reader.readAsDataURL(file);
+        filePromises.push(filePromise);
+      });
+      
+      // When all files are processed, update state
+      Promise.all(filePromises).then(results => {
+        setChats(prev => ({
+          ...prev,
+          [modelId]: {
+            ...prev[modelId],
+            imageDataArray: [...prev[modelId].imageDataArray, ...results]
+          }
+        }));
+      });
+    }
+  };
+
+  const removeImage = (modelId: string, index: number) => {
+    setChats(prev => ({
+      ...prev,
+      [modelId]: {
+        ...prev[modelId],
+        imageDataArray: prev[modelId].imageDataArray.filter((_, i) => i !== index)
+      }
+    }));
   };
 
   const fetchMessages = async (modelId: string) => {
@@ -172,15 +218,18 @@ export default function Home() {
 
   const sendMessage = async (modelId: string) => {
     const content = chats[modelId].inputValue.trim();
-    if (content === '') return;
+    const images = chats[modelId].imageDataArray;
     
-    // Add user message to UI
+    if (content === '' && images.length === 0) return;
+    
+    // Add user message to UI with images
     const userMessageId = `user_${modelId}_${Date.now()}`;
     const userMessage: Message = {
       id: userMessageId,
       content: content,
       role: 'user',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      images: images.length > 0 ? [...images] : undefined
     };
     
     setChats(prev => ({
@@ -189,6 +238,7 @@ export default function Home() {
         ...prev[modelId],
         messages: [...prev[modelId].messages, userMessage],
         inputValue: '',
+        imageDataArray: [], // Clear images after sending
         isLoading: true
       }
     }));
@@ -214,7 +264,7 @@ export default function Home() {
         }
       }));
       
-      // Send the message to the API
+      // Send the message to the API with images
       const response = await fetch(
         `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${modelId}/messages`,
         {
@@ -224,6 +274,7 @@ export default function Home() {
           },
           body: JSON.stringify({
             content: content,
+            images: images.length > 0 ? images : undefined,
             model: modelId,
             mode: 'creative',
             history_length: 25,
@@ -591,13 +642,39 @@ export default function Home() {
               </div>
               
               <div className="input-container h-24 min-h-24 border-t border-gray-200">
+                <div className="image-upload-container">
+                  <label className="image-upload-button" title="Upload images">
+                    📷
+                    <input
+                      type="file"
+                      className="image-upload-input"
+                      accept="image/*"
+                      multiple
+                      onChange={(e) => handleImageUpload(model.id, e)}
+                    />
+                  </label>
+                  {chats[model.id]?.imageDataArray.map((imageData, index) => (
+                    <div key={`img-${index}`} className="image-preview-container">
+                      <img src={imageData} alt="Preview" className="image-preview" />
+                      <button 
+                        className="remove-image-button"
+                        onClick={() => removeImage(model.id, index)}
+                        aria-label="Remove image"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
                 <textarea
                   ref={el => textareaRefs.current[model.id] = el}
                   className="message-input text-sm"
                   value={chats[model.id]?.inputValue || ''}
                   onChange={(e) => handleTextareaChange(model.id, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(e, model.id)}
-                  placeholder="Type your message here... (Shift+Enter for new line)"
+                  placeholder={chats[model.id]?.imageDataArray.length > 0 
+                    ? "Add a caption to your images..." 
+                    : "Type your message here... (Shift+Enter for new line)"}
                   rows={2}
                   disabled={chats[model.id]?.isLoading}
                   style={{ 
@@ -609,7 +686,9 @@ export default function Home() {
                 <button 
                   className="send-button text-sm"
                   onClick={() => sendMessage(model.id)}
-                  disabled={chats[model.id]?.isLoading || !chats[model.id]?.inputValue?.trim()}
+                  disabled={chats[model.id]?.isLoading || 
+                    (chats[model.id]?.inputValue.trim() === '' && 
+                     chats[model.id]?.imageDataArray.length === 0)}
                 >
                   Send
                 </button>
