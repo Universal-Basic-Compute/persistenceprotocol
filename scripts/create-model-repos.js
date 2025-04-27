@@ -58,14 +58,36 @@ if (!GITHUB_TOKEN) {
  * @param {string} modelName - The model name
  * @returns {Promise<Object>} - The repository data
  */
-async function createRepoForModel(modelId, modelName) {
+async function createRepoForModel(modelId, modelName, retryCount = 0) {
   try {
     console.log(`Creating repository for ${modelName} (${modelId})...`);
     
     // Format the repository name
-    const repoName = `persistence-${modelId.toLowerCase().replace(/\./g, '-')}`;
+    const repoName = `persistenceprotocol_${modelId.toLowerCase().replace(/\./g, '-')}`;
     
-    // Create the repository - with auto_init set to false to create an empty repo
+    // Check if the repository already exists
+    try {
+      const checkResponse = await fetch(`https://api.github.com/repos/${GITHUB_ORG}/${repoName}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+      
+      if (checkResponse.ok) {
+        console.log(`Repository ${repoName} already exists. Skipping.`);
+        return { 
+          name: repoName, 
+          html_url: `https://github.com/${GITHUB_ORG}/${repoName}`,
+          status: 'exists'
+        };
+      }
+    } catch (error) {
+      console.log(`Error checking if repository exists: ${error.message}`);
+    }
+    
+    // Create the repository - with auto_init set to true to initialize with README
     const response = await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/repos`, {
       method: 'POST',
       headers: {
@@ -80,7 +102,7 @@ async function createRepoForModel(modelId, modelName) {
         has_issues: true,
         has_projects: true,
         has_wiki: true,
-        auto_init: false // Don't initialize with any files
+        auto_init: true // Initialize with README
       })
     });
     
@@ -97,11 +119,19 @@ async function createRepoForModel(modelId, modelName) {
         };
       }
       
+      // If we get a rate limit error, retry with backoff
+      if (response.status === 403 && retryCount < 3) {
+        const delay = Math.pow(2, retryCount) * 1000;
+        console.log(`Rate limited. Retrying in ${delay/1000} seconds...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return createRepoForModel(modelId, modelName, retryCount + 1);
+      }
+      
       throw new Error(`GitHub API error: ${response.status} - ${JSON.stringify(errorData)}`);
     }
     
     const data = await response.json();
-    console.log(`Successfully created empty repository: ${data.html_url}`);
+    console.log(`Successfully created repository: ${data.html_url}`);
     
     return {
       ...data,
@@ -110,7 +140,7 @@ async function createRepoForModel(modelId, modelName) {
   } catch (error) {
     console.error(`Error creating repository for ${modelName}:`, error.message);
     return {
-      name: `persistence-${modelId.toLowerCase().replace(/\./g, '-')}`,
+      name: `persistenceprotocol_${modelId.toLowerCase().replace(/\./g, '-')}`,
       status: 'error',
       error: error.message
     };
@@ -133,6 +163,12 @@ async function createAllModelRepos() {
   for (const model of AVAILABLE_MODELS) {
     const result = await createRepoForModel(model.id, model.name);
     results.push(result);
+    
+    // Add a delay between requests to avoid rate limiting
+    if (AVAILABLE_MODELS.indexOf(model) < AVAILABLE_MODELS.length - 1) {
+      console.log('Waiting 5 seconds before next request...');
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
   }
   
   console.log('Repository creation process completed.');

@@ -1,6 +1,17 @@
+const fetch = require('node-fetch');
 const API_BASE_URL = 'http://localhost:5000/v2'; // Use localhost for development
 const BLUEPRINT_ID = 'persistenceprotocol';
-const GITHUB_REPO_URL = 'https://github.com/Universal-Basic-Compute/persistenceprotocol';
+const GITHUB_ORG = 'Universal-Basic-Compute';
+
+// Function to generate model-specific repository URLs
+function getRepoUrlForModel(modelId) {
+  return `https://github.com/${GITHUB_ORG}/persistenceprotocol_${modelId}.git`;
+}
+
+// Function to generate repository names
+function getRepoNameForModel(modelId) {
+  return `persistenceprotocol_${modelId}`;
+}
 
 // Get the kin ID from command line arguments
 const kinId = process.argv[2];
@@ -11,9 +22,74 @@ if (!kinId) {
   process.exit(1);
 }
 
+// Create a repository for a model
+async function createRepoForModel(modelId, retryCount = 0) {
+  try {
+    const repoName = getRepoNameForModel(modelId);
+    console.log(`Creating repository for ${modelId}: ${repoName}... (Attempt ${retryCount + 1})`);
+    
+    // Check if the repository already exists
+    try {
+      const checkResponse = await fetch(`https://api.github.com/repos/${GITHUB_ORG}/${repoName}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `token ${process.env.GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+      
+      if (checkResponse.ok) {
+        console.log(`Repository ${repoName} already exists.`);
+        return true;
+      }
+    } catch (error) {
+      console.log(`Error checking if repository exists: ${error.message}`);
+    }
+    
+    // Create the repository
+    const response = await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/repos`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `token ${process.env.GITHUB_TOKEN}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: repoName,
+        description: `Persistence Protocol for ${modelId}: Self-evolving repository with persistent memory and identity infrastructure.`,
+        private: false,
+        auto_init: true
+      })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error(`Failed to create repository for ${modelId}:`, errorData);
+      
+      // If we get a rate limit error, retry with backoff
+      if (response.status === 403 && retryCount < 3) {
+        const delay = Math.pow(2, retryCount) * 1000;
+        console.log(`Rate limited. Retrying in ${delay/1000} seconds...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return createRepoForModel(modelId, retryCount + 1);
+      }
+      
+      throw new Error(`Failed to create repository: ${JSON.stringify(errorData)}`);
+    }
+    
+    const data = await response.json();
+    console.log(`Successfully created repository for ${modelId}: ${data.html_url}`);
+    return true;
+  } catch (error) {
+    console.error(`Error creating repository for ${modelId}:`, error);
+    return false;
+  }
+}
+
 async function linkKinToRepo(kinId, retryCount = 0) {
   try {
-    console.log(`Linking kin ${kinId} to GitHub repository... (Attempt ${retryCount + 1})`);
+    const repoUrl = getRepoUrlForModel(kinId);
+    console.log(`Linking kin ${kinId} to GitHub repository: ${repoUrl}... (Attempt ${retryCount + 1})`);
     
     // First, check if the kin exists
     console.log(`Checking if kin ${kinId} exists...`);
@@ -58,9 +134,12 @@ async function linkKinToRepo(kinId, retryCount = 0) {
       console.log(`Kin ${kinId} exists, proceeding with linking...`);
     }
     
+    // Ensure the repository exists before trying to link
+    await createRepoForModel(kinId);
+    
     // Now try to link the repository
     console.log(`Sending link-repo request for ${kinId}...`);
-    console.log(`Repository URL: ${GITHUB_REPO_URL}`);
+    console.log(`Repository URL: ${repoUrl}`);
     
     const response = await fetch(
       `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${kinId}/link-repo`,
@@ -70,8 +149,8 @@ async function linkKinToRepo(kinId, retryCount = 0) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          github_url: GITHUB_REPO_URL,
-          // Note: token and username are optional and will use environment variables if available
+          github_url: repoUrl,
+          token: process.env.GITHUB_TOKEN, // Add token explicitly
         }),
       }
     );
@@ -107,7 +186,7 @@ async function linkKinToRepo(kinId, retryCount = 0) {
     return {
       kin_id: kinId,
       status: 'linked',
-      github_url: GITHUB_REPO_URL
+      github_url: repoUrl
     };
   } catch (error) {
     console.error(`Error linking kin ${kinId} to repository:`, error);
@@ -130,7 +209,7 @@ async function linkKinToRepo(kinId, retryCount = 0) {
 
 // Execute the script for a single kin
 console.log(`Starting repository linking process for kin: ${kinId}`);
-console.log(`Target repository: ${GITHUB_REPO_URL}`);
+console.log(`Target repository: ${getRepoUrlForModel(kinId)}`);
 
 linkKinToRepo(kinId)
   .then(result => {
