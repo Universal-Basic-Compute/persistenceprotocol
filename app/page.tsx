@@ -26,6 +26,8 @@ type ChatState = {
   inputValue: string;
   isLoading: boolean;
   imageDataArray: string[]; // Array of base64 image data
+  showInput: boolean; // Add this to control input visibility
+  menuOpen: boolean; // Add this to control menu visibility
 };
 
 // KinOS API endpoints and configuration
@@ -86,7 +88,9 @@ export default function Home() {
         messages: [],
         inputValue: '',
         isLoading: false,
-        imageDataArray: [] // Initialize empty array for images
+        imageDataArray: [], // Initialize empty array for images
+        showInput: false, // Initially hide input
+        menuOpen: false // Initially close menu
       };
     });
     setChats(initialChats);
@@ -490,6 +494,27 @@ export default function Home() {
       setFullscreenChat(modelId);
     }
   };
+  
+  const toggleChatMenu = (modelId: string) => {
+    setChats(prev => ({
+      ...prev,
+      [modelId]: {
+        ...prev[modelId],
+        menuOpen: !prev[modelId].menuOpen
+      }
+    }));
+  };
+
+  const toggleChatInput = (modelId: string) => {
+    setChats(prev => ({
+      ...prev,
+      [modelId]: {
+        ...prev[modelId],
+        showInput: !prev[modelId].showInput,
+        menuOpen: false // Close menu when toggling input
+      }
+    }));
+  };
 
   return (
     <>
@@ -552,15 +577,37 @@ export default function Home() {
               key={model.id} 
               className={`chat-grid-item border border-gray-200 rounded-lg overflow-hidden flex flex-col h-[500px] relative ${fullscreenChat === model.id ? 'chat-fullscreen' : ''}`}
             >
-              <div className="chat-header p-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200">
+              <div className="chat-header p-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 flex items-center">
                 <h2 className="font-semibold">{model.name}</h2>
-                <button 
-                  className="fullscreen-button" 
-                  onClick={() => toggleFullscreen(model.id)}
-                  aria-label={fullscreenChat === model.id ? "Exit fullscreen" : "Enter fullscreen"}
-                >
-                  {fullscreenChat === model.id ? '⊖' : '⊕'}
-                </button>
+                <div className="flex ml-auto">
+                  <button 
+                    className="chat-menu-button mr-2" 
+                    onClick={() => toggleChatMenu(model.id)}
+                    aria-label="Chat menu"
+                  >
+                    ⋮
+                  </button>
+                  <button 
+                    className="fullscreen-button" 
+                    onClick={() => toggleFullscreen(model.id)}
+                    aria-label={fullscreenChat === model.id ? "Exit fullscreen" : "Enter fullscreen"}
+                  >
+                    {fullscreenChat === model.id ? '⊖' : '⊕'}
+                  </button>
+                </div>
+                
+                {/* Chat menu */}
+                {chats[model.id]?.menuOpen && (
+                  <div className="chat-menu">
+                    <div 
+                      className="chat-menu-item"
+                      onClick={() => toggleChatInput(model.id)}
+                    >
+                      {chats[model.id]?.showInput ? "Hide message input" : "Send message"}
+                    </div>
+                    {/* Add more menu items here as needed */}
+                  </div>
+                )}
               </div>
               
               <div className="messages-container flex-grow overflow-y-auto p-3">
@@ -661,7 +708,7 @@ export default function Home() {
                 <div ref={el => messagesEndRefs.current[model.id] = el} />
               </div>
               
-              <div className="input-container h-24 min-h-24 border-t border-gray-200">
+              <div className={`input-container h-24 min-h-24 border-t border-gray-200 ${chats[model.id]?.showInput ? 'input-container-visible' : 'input-container-hidden'}`}>
                 <div className="image-upload-container">
                   <label className="image-upload-button" title="Upload images">
                     📷
