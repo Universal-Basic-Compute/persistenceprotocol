@@ -567,7 +567,8 @@ export default function Home() {
                 {chats[model.id]?.messages.map((message) => (
                   <div
                     key={message.id || `msg_${model.id}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`}
-                    className={`message ${message.role === 'user' ? 'user-message' : 
+                    className={`message ${message.role === 'user' ? 
+                      (message.images && message.images.length > 0 ? 'user-message user-message-with-images' : 'user-message') : 
                       message.model ? `system-message model-${message.model}` : 'system-message model-default'}`}
                   >
                     {message.role === 'assistant' && (
@@ -585,42 +586,19 @@ export default function Home() {
                         {message.content}
                       </ReactMarkdown>
                     </div>
-                    <div className="message-footer">
-                      <div className="text-xs opacity-50" key={`time_${message.id || Date.now()}`}>
-                        {formatTimestamp(message.timestamp)}
+                    
+                    {/* Display user uploaded images */}
+                    {message.images && message.images.length > 0 && (
+                      <div className="user-images-container">
+                        {message.images.map((img, idx) => (
+                          <div key={`user-img-${idx}`} className="user-image-wrapper">
+                            <img src={img} alt={`User uploaded image ${idx + 1}`} className="user-image" />
+                          </div>
+                        ))}
                       </div>
-                      <div className="message-actions">
-                        <button 
-                          className={`action-button tts-button ${playingAudio === message.id ? 'action-active' : ''}`}
-                          onClick={() => {
-                            if (playingAudio === message.id) {
-                              setPlayingAudio(null);
-                            } else {
-                              textToSpeech(message.content, message.id);
-                            }
-                          }}
-                          disabled={playingAudio !== null && playingAudio !== message.id}
-                          aria-label="Text to speech"
-                        >
-                          {playingAudio === message.id ? 'Playing...' : 'Voice'}
-                        </button>
-                        <button 
-                          className={`action-button illustrate-button ${generatingImage === message.id ? 'action-active' : ''}`}
-                          onClick={() => {
-                            if (generatingImage === message.id) {
-                              // Already generating, do nothing
-                              return;
-                            } else {
-                              generateImage(message.content, message.id);
-                            }
-                          }}
-                          disabled={generatingImage !== null}
-                          aria-label="Generate illustration"
-                        >
-                          {generatingImage === message.id ? 'Creating...' : 'Illustrate'}
-                        </button>
-                      </div>
-                    </div>
+                    )}
+                    
+                    {/* Display generated image if any */}
                     {message.imageUrl && (
                       <div className="message-image-container">
                         <img 
@@ -631,6 +609,48 @@ export default function Home() {
                         />
                       </div>
                     )}
+                    
+                    <div className="message-footer">
+                      <div className="text-xs opacity-50" key={`time_${message.id || Date.now()}`}>
+                        {formatTimestamp(message.timestamp)}
+                      </div>
+                      <div className="message-actions">
+                        {/* Only show TTS and illustrate buttons for assistant messages */}
+                        {message.role === 'assistant' && (
+                          <>
+                            <button 
+                              className={`action-button tts-button ${playingAudio === message.id ? 'action-active' : ''}`}
+                              onClick={() => {
+                                if (playingAudio === message.id) {
+                                  setPlayingAudio(null);
+                                } else {
+                                  textToSpeech(message.content, message.id);
+                                }
+                              }}
+                              disabled={playingAudio !== null && playingAudio !== message.id}
+                              aria-label="Text to speech"
+                            >
+                              {playingAudio === message.id ? 'Playing...' : 'Voice'}
+                            </button>
+                            <button 
+                              className={`action-button illustrate-button ${generatingImage === message.id ? 'action-active' : ''}`}
+                              onClick={() => {
+                                if (generatingImage === message.id) {
+                                  // Already generating, do nothing
+                                  return;
+                                } else {
+                                  generateImage(message.content, message.id);
+                                }
+                              }}
+                              disabled={generatingImage !== null}
+                              aria-label="Generate illustration"
+                            >
+                              {generatingImage === message.id ? 'Creating...' : 'Illustrate'}
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 ))}
                 {chats[model.id]?.isLoading && (
