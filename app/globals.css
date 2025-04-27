@@ -388,6 +388,61 @@ input:checked + .toggle-slider:before {
   text-decoration: underline;
 }
 
+/* Message footer with timestamp and TTS button */
+.message-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+/* TTS button styling */
+.tts-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  padding: 0.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tts-button:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.tts-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
+.tts-playing {
+  opacity: 1;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Dark mode adjustments */
+.dark .tts-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
 /* Make all text smaller in the chat grid */
 .chat-grid-item {
   font-size: 0.75rem;

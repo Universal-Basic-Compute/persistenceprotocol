@@ -44,6 +44,7 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [chats, setChats] = useState<Record<string, ChatState>>({});
+  const [playingAudio, setPlayingAudio] = useState<string | null>(null);
   const messagesEndRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
 
@@ -325,6 +326,50 @@ export default function Home() {
     setDarkMode(!darkMode);
   };
 
+  const textToSpeech = async (text: string, messageId: string) => {
+    try {
+      setPlayingAudio(messageId);
+      
+      const response = await fetch(
+        `${API_BASE_URL}/v2/tts`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            text: text,
+            model: "eleven_flash_v2_5"
+          }),
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error(`TTS API request failed with status ${response.status}`);
+      }
+      
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      
+      audio.onended = () => {
+        URL.revokeObjectURL(audioUrl);
+        setPlayingAudio(null);
+      };
+      
+      audio.onerror = () => {
+        console.error('Audio playback error');
+        URL.revokeObjectURL(audioUrl);
+        setPlayingAudio(null);
+      };
+      
+      await audio.play();
+    } catch (error) {
+      console.error('Error with text-to-speech:', error);
+      setPlayingAudio(null);
+    }
+  };
+
   const toggleModel = (modelId: string) => {
     setModels(prevModels => 
       prevModels.map(model => 
@@ -419,8 +464,24 @@ export default function Home() {
                         {message.content}
                       </ReactMarkdown>
                     </div>
-                    <div className="text-xs opacity-50 mt-1" key={`time_${message.id || Date.now()}`}>
-                      {formatTimestamp(message.timestamp)}
+                    <div className="message-footer">
+                      <div className="text-xs opacity-50" key={`time_${message.id || Date.now()}`}>
+                        {formatTimestamp(message.timestamp)}
+                      </div>
+                      <button 
+                        className={`tts-button ${playingAudio === message.id ? 'tts-playing' : ''}`}
+                        onClick={() => {
+                          if (playingAudio === message.id) {
+                            setPlayingAudio(null);
+                          } else {
+                            textToSpeech(message.content, message.id);
+                          }
+                        }}
+                        disabled={playingAudio !== null && playingAudio !== message.id}
+                        aria-label="Text to speech"
+                      >
+                        {playingAudio === message.id ? '🔊' : '🔈'}
+                      </button>
                     </div>
                   </div>
                 ))}
