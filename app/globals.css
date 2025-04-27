@@ -88,7 +88,7 @@ body {
 }
 
 .chat-grid-item {
-  background-color: var(--birch);
+  background-color: var(--ivory); /* Set ivory as the default background */
   height: 500px;
   display: flex;
   flex-direction: column;
@@ -109,7 +109,8 @@ body {
   pointer-events: none;
 }
 
-/* Add model-specific background colors to chat grid items */
+/* Model-specific background colors commented out to use ivory for all models */
+/* 
 .chat-grid-item[data-model="claude-3-7-sonnet-latest"] {
   background-color: var(--claude-3-7-sonnet-bg);
 }
@@ -130,6 +131,7 @@ body {
 .chat-grid-item[data-model="gpt-4o"] {
   background-color: var(--gpt-4-turbo-bg);
 }
+*/
 
 .chat-header {
   padding: 0.5rem 1rem;
