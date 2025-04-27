@@ -481,6 +481,11 @@ export default function Home() {
         throw new Error('Could not determine which model to use for image generation');
       }
       
+      // Check if the chat state exists for this model
+      if (!chats[targetModelId]) {
+        throw new Error(`Chat state not found for model ${targetModelId}`);
+      }
+      
       const response = await fetch(
         `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${targetModelId}/images`,
         {
@@ -821,7 +826,7 @@ export default function Home() {
         <p className="font-bold">Something went wrong:</p>
         <pre className="mt-2 text-sm overflow-auto">{error.message}</pre>
         <button
-          onClick={resetErrorBoundary}
+          onClick={() => resetErrorBoundary()}
           className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
         >
           Try again
@@ -835,7 +840,7 @@ export default function Home() {
       {/* Menu Toggle Button */}
       <button 
         className="menu-toggle" 
-        onClick={toggleMenu}
+        onClick={() => toggleMenu()}
         aria-label={menuOpen ? "Close menu" : "Open menu"}
       >
         {menuOpen ? "×" : "≡"}
@@ -884,7 +889,7 @@ export default function Home() {
       {/* Global Input Chat */}
       <div 
         className={`global-input-container ${isGlobalInputCollapsed ? 'collapsed' : ''}`}
-        onClick={isGlobalInputCollapsed ? toggleGlobalInput : undefined}
+        onClick={isGlobalInputCollapsed ? () => toggleGlobalInput() : undefined}
       >
         <div className="global-input-header">
           <div className="global-input-title">Global Message</div>
@@ -1002,7 +1007,10 @@ export default function Home() {
                   <div className="chat-menu">
                     <div 
                       className="chat-menu-item"
-                      onClick={() => toggleChatInput(model.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleChatInput(model.id);
+                      }}
                     >
                       {chats[model.id]?.showInput ? "Hide message input" : "Send message"}
                     </div>
@@ -1068,7 +1076,8 @@ export default function Home() {
                           <>
                             <button 
                               className={`action-button tts-button ${playingAudio === message.id ? 'action-active' : ''}`}
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 if (playingAudio === message.id) {
                                   setPlayingAudio(null);
                                 } else {
@@ -1082,7 +1091,8 @@ export default function Home() {
                             </button>
                             <button 
                               className={`action-button illustrate-button ${generatingImage === message.id ? 'action-active' : ''}`}
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 if (generatingImage === message.id) {
                                   // Already generating, do nothing
                                   return;
