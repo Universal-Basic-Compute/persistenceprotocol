@@ -34,7 +34,7 @@ const GlobalInput: React.FC<GlobalInputProps> = ({
       onClick={isGlobalInputCollapsed ? onToggleCollapse : undefined}
     >
       <div className="global-input-header">
-        <div className="global-input-title">Global Message</div>
+        <div className="global-input-title">Message All Models</div>
         <button 
           className="global-input-toggle"
           onClick={onToggleCollapse}
@@ -51,7 +51,7 @@ const GlobalInput: React.FC<GlobalInputProps> = ({
           value={globalInput}
           onChange={onInputChange}
           onKeyDown={onKeyDown}
-          placeholder="Send a message to all active chats..."
+          placeholder="Type a message to send to all active models..."
           disabled={isGlobalLoading}
         />
         
@@ -91,7 +91,7 @@ const GlobalInput: React.FC<GlobalInputProps> = ({
             isLoading={isGlobalLoading}
             className="global-send-button"
           >
-            Send to All
+            Send to All Models
           </Button>
         </div>
       </div>
