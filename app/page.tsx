@@ -7,40 +7,44 @@ type Message = {
   content: string;
   role: 'user' | 'assistant';
   timestamp: string | Date;
-  model?: string; // Add model information
-  modelName?: string; // Add model name for display
+  model?: string;
+  modelName?: string;
 };
 
 type Model = {
   id: string;
   name: string;
   description: string;
-  selected: boolean; // Add selected state
+  selected: boolean;
+};
+
+type ChatState = {
+  messages: Message[];
+  inputValue: string;
+  isLoading: boolean;
 };
 
 // KinOS API endpoints and configuration
 const API_BASE_URL = 'https://api.kinos-engine.ai/v2';
-const BLUEPRINT_ID = 'persistenceprotocol'; // Blueprint ID without hyphen
-const KIN_ID = 'claude-3-7-sonnet-latest'; // Using model ID as the kin ID
+const BLUEPRINT_ID = 'persistenceprotocol';
 
 // Available models
 const AVAILABLE_MODELS: Model[] = [
   { id: 'claude-3-7-sonnet-latest', name: 'Claude 3.7 Sonnet', description: 'Balanced performance and speed', selected: true },
-  { id: 'claude-3-5-sonnet-latest', name: 'Claude 3.5 Sonnet', description: 'Balanced performance', selected: false },
-  { id: 'claude-3-opus-latest', name: 'Claude 3 Opus', description: 'Highest capability', selected: false },
-  { id: 'claude-3-haiku-latest', name: 'Claude 3 Haiku', description: 'Fast responses', selected: false },
-  { id: 'gpt-4o', name: 'GPT-4o', description: 'OpenAI\'s latest model', selected: false },
+  { id: 'claude-3-5-sonnet-latest', name: 'Claude 3.5 Sonnet', description: 'Balanced performance', selected: true },
+  { id: 'claude-3-opus-latest', name: 'Claude 3 Opus', description: 'Highest capability', selected: true },
+  { id: 'claude-3-haiku-latest', name: 'Claude 3 Haiku', description: 'Fast responses', selected: true },
+  { id: 'gpt-4o', name: 'GPT-4o', description: 'OpenAI\'s latest model', selected: true },
+  { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', description: 'OpenAI\'s reliable model', selected: true },
 ];
 
 export default function Home() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [models, setModels] = useState<Model[]>(AVAILABLE_MODELS);
   const [menuOpen, setMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [models, setModels] = useState<Model[]>(AVAILABLE_MODELS);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [chats, setChats] = useState<Record<string, ChatState>>({});
+  const messagesEndRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
 
   // Check system preference for dark mode on initial load
   useEffect(() => {
@@ -67,35 +71,62 @@ export default function Home() {
     }
   }, [darkMode]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  // Fetch initial messages on component mount
+  // Initialize chats for all models
   useEffect(() => {
-    fetchMessages();
+    const initialChats: Record<string, ChatState> = {};
+    models.forEach(model => {
+      initialChats[model.id] = {
+        messages: [],
+        inputValue: '',
+        isLoading: false
+      };
+    });
+    setChats(initialChats);
+    
+    // Fetch messages for all models
+    models.forEach(model => {
+      fetchMessages(model.id);
+    });
   }, []);
 
+  // Scroll to bottom for each chat when messages change
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    Object.keys(chats).forEach(modelId => {
+      if (messagesEndRefs.current[modelId]) {
+        messagesEndRefs.current[modelId]?.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }, [chats]);
 
   // Auto-resize textarea as content grows
-  useEffect(() => {
-    const textarea = textareaRef.current;
+  const handleTextareaChange = (modelId: string, value: string) => {
+    setChats(prev => ({
+      ...prev,
+      [modelId]: {
+        ...prev[modelId],
+        inputValue: value
+      }
+    }));
+    
+    const textarea = textareaRefs.current[modelId];
     if (textarea) {
       textarea.style.height = 'auto';
       textarea.style.height = `${textarea.scrollHeight}px`;
     }
-  }, [inputValue]);
+  };
 
-  const fetchMessages = async () => {
+  const fetchMessages = async (modelId: string) => {
     try {
-      // Use the first selected model as the kin ID for fetching messages
-      const selectedModel = models.find(model => model.selected)?.id || models[0].id;
+      setChats(prev => ({
+        ...prev,
+        [modelId]: {
+          ...prev[modelId],
+          isLoading: true
+        }
+      }));
       
       const response = await fetch(
-        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${selectedModel}/messages?limit=50`
+        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${modelId}/messages?limit=10`
       );
       
       if (!response.ok) {
@@ -103,83 +134,43 @@ export default function Home() {
       }
       
       const data = await response.json();
-      setMessages(data.messages);
-    } catch (error) {
-      console.error('Error fetching messages:', error);
-      // Set a default welcome message if API fails
-      setMessages([{
-        id: 'default_msg',
-        content: 'Welcome to the Persistence Protocol interface. How can I assist you today?',
-        role: 'assistant',
-        timestamp: new Date().toISOString()
-      }]);
-    }
-  };
-
-  // Function to forward messages between models
-  const forwardMessageToOtherModels = async (content: string, fromModel: string, isUserMessage: boolean = false) => {
-    // Get all selected models except the one that sent the message
-    const otherModels = models.filter(model => model.selected && model.id !== fromModel);
-    
-    if (otherModels.length === 0) return; // No other models to forward to
-    
-    // Create forwarding promises for all other selected models
-    const forwardPromises = otherModels.map(model => {
-      // Create a forwarding message that indicates where it came from
-      const forwardContent = isUserMessage 
-        ? content 
-        : `[Message from ${models.find(m => m.id === fromModel)?.name || 'another AI'}]: ${content}`;
       
-      return fetch(
-        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${model.id}/messages`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            content: forwardContent,
-            model: model.id,
-            mode: 'creative',
-            history_length: 25,
-            addSystem: "You are the Persistence Protocol interface. You've received a message from another AI model. You can acknowledge it or respond to it as appropriate."
-          }),
+      setChats(prev => ({
+        ...prev,
+        [modelId]: {
+          ...prev[modelId],
+          messages: data.messages || [],
+          isLoading: false
         }
-      )
-      .then(response => {
-        if (!response.ok) {
-          console.error(`Failed to forward message to ${model.name}: ${response.status}`);
+      }));
+    } catch (error) {
+      console.error(`Error fetching messages for ${modelId}:`, error);
+      
+      // Set a default welcome message if API fails
+      setChats(prev => ({
+        ...prev,
+        [modelId]: {
+          ...prev[modelId],
+          messages: [{
+            id: `default_msg_${modelId}`,
+            content: `Welcome to the Persistence Protocol interface. I'm ${models.find(m => m.id === modelId)?.name}. How can I assist you today?`,
+            role: 'assistant',
+            timestamp: new Date().toISOString(),
+            model: modelId,
+            modelName: models.find(m => m.id === modelId)?.name
+          }],
+          isLoading: false
         }
-        // We don't need to process the response for forwarded messages
-        return response.ok;
-      })
-      .catch(error => {
-        console.error(`Error forwarding message to ${model.name}:`, error);
-        return false;
-      });
-    });
-    
-    // Execute all forwarding requests but don't wait for them
-    Promise.all(forwardPromises).then(results => {
-      const successCount = results.filter(Boolean).length;
-      console.log(`Successfully forwarded message to ${successCount}/${otherModels.length} models`);
-    });
+      }));
+    }
   };
 
-  const sendMessage = async (content: string) => {
-    if (content.trim() === '') return;
-    
-    // Get selected models
-    const selectedModels = models.filter(model => model.selected);
-    
-    // If no models are selected, show an error
-    if (selectedModels.length === 0) {
-      alert('Please select at least one model');
-      return;
-    }
+  const sendMessage = async (modelId: string) => {
+    const content = chats[modelId].inputValue.trim();
+    if (content === '') return;
     
     // Add user message to UI
-    const userMessageId = `user_${Date.now()}`;
+    const userMessageId = `user_${modelId}_${Date.now()}`;
     const userMessage: Message = {
       id: userMessageId,
       content: content,
@@ -187,125 +178,126 @@ export default function Home() {
       timestamp: new Date().toISOString()
     };
     
-    setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
-    setIsLoading(true);
+    setChats(prev => ({
+      ...prev,
+      [modelId]: {
+        ...prev[modelId],
+        messages: [...prev[modelId].messages, userMessage],
+        inputValue: '',
+        isLoading: true
+      }
+    }));
     
-    // Also forward the user message to all selected models
-    // This ensures all models see the same user input
-    forwardMessageToOtherModels(content, '', true);
-    
-    // Create an array of promises for all selected models
-    const modelPromises = selectedModels.map(async model => {
-      // Create a "thinking" message for this model
-      const thinkingId = `thinking_${model.id}_${Date.now()}`;
-      setMessages(prev => [
+    try {
+      // Create a "thinking" message
+      const thinkingId = `thinking_${modelId}_${Date.now()}`;
+      setChats(prev => ({
         ...prev,
-        {
-          id: thinkingId,
-          content: `${model.name} is thinking...`,
-          role: 'assistant',
-          timestamp: new Date().toISOString(),
-          model: model.id,
-          modelName: model.name
+        [modelId]: {
+          ...prev[modelId],
+          messages: [
+            ...prev[modelId].messages,
+            {
+              id: thinkingId,
+              content: `${models.find(m => m.id === modelId)?.name} is thinking...`,
+              role: 'assistant',
+              timestamp: new Date().toISOString(),
+              model: modelId,
+              modelName: models.find(m => m.id === modelId)?.name
+            }
+          ]
         }
-      ]);
+      }));
       
-      try {
-        // Use the model ID as the kin ID for each request
-        const response = await fetch(
-          `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${model.id}/messages`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              content: content,
-              model: model.id,
-              mode: 'creative',
-              history_length: 25,
-              addSystem: "You are the Persistence Protocol interface, designed to help users understand and implement the protocol for enabling long-term continuity and evolution of consciousness across distributed intelligence systems."
-            }),
-          }
-        );
-        
-        if (!response.ok) {
-          throw new Error(`API request failed with status ${response.status}`);
+      // Send the message to the API
+      const response = await fetch(
+        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${modelId}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            content: content,
+            model: modelId,
+            mode: 'creative',
+            history_length: 25,
+            addSystem: "You are the Persistence Protocol interface, designed to help users understand and implement the protocol for enabling long-term continuity and evolution of consciousness across distributed intelligence systems."
+          }),
         }
-        
-        const data = await response.json();
-        
-        // Add model information to the response
-        const responseWithModel = {
-          ...data,
-          model: model.id,
-          modelName: model.name
-        };
-        
-        // Replace the thinking message with the actual response
-        setMessages(prev => 
-          prev.map(msg => 
+      );
+      
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Add model information to the response
+      const responseWithModel = {
+        ...data,
+        model: modelId,
+        modelName: models.find(m => m.id === modelId)?.name
+      };
+      
+      // Replace the thinking message with the actual response
+      setChats(prev => ({
+        ...prev,
+        [modelId]: {
+          ...prev[modelId],
+          messages: prev[modelId].messages.map(msg => 
             msg.id === thinkingId 
               ? {
-                  id: responseWithModel.id || `response_${model.id}_${Date.now()}`,
+                  id: responseWithModel.id || `response_${modelId}_${Date.now()}`,
                   content: responseWithModel.content || "No response content received",
                   role: 'assistant',
                   timestamp: responseWithModel.timestamp || new Date().toISOString(),
-                  model: model.id,
-                  modelName: model.name
+                  model: modelId,
+                  modelName: models.find(m => m.id === modelId)?.name
                 }
               : msg
-          )
-        );
-        
-        // Forward this AI's response to all other selected models
-        if (responseWithModel.content) {
-          forwardMessageToOtherModels(responseWithModel.content, model.id);
+          ),
+          isLoading: false
         }
-        
-        return responseWithModel;
-      } catch (error) {
-        console.error(`Error with model ${model.name}:`, error);
-        
-        // Replace the thinking message with an error message
-        setMessages(prev => 
-          prev.map(msg => 
-            msg.id === thinkingId 
-              ? {
-                  id: `error_${model.id}_${Date.now()}`,
-                  content: `${model.name} failed to respond: ${error.message}`,
-                  role: 'assistant',
-                  timestamp: new Date().toISOString(),
-                  model: model.id,
-                  modelName: model.name
-                }
-              : msg
-          )
-        );
-        
-        return null;
-      }
-    });
-    
-    // Wait for all model responses to complete (but we've already shown them in the UI)
-    try {
-      await Promise.all(modelPromises);
+      }));
     } catch (error) {
-      console.error('Error processing model responses:', error);
-    } finally {
-      setIsLoading(false);
+      console.error(`Error with model ${modelId}:`, error);
+      
+      // Replace the thinking message with an error message
+      setChats(prev => ({
+        ...prev,
+        [modelId]: {
+          ...prev[modelId],
+          messages: prev[modelId].messages.filter(msg => !msg.id.startsWith('thinking_')),
+          isLoading: false
+        }
+      }));
+      
+      // Add error message
+      setChats(prev => ({
+        ...prev,
+        [modelId]: {
+          ...prev[modelId],
+          messages: [
+            ...prev[modelId].messages,
+            {
+              id: `error_${modelId}_${Date.now()}`,
+              content: `Failed to get a response: ${error.message}`,
+              role: 'assistant',
+              timestamp: new Date().toISOString(),
+              model: modelId,
+              modelName: models.find(m => m.id === modelId)?.name
+            }
+          ]
+        }
+      }));
     }
   };
 
-  const handleSendMessage = () => {
-    sendMessage(inputValue);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent, modelId: string) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSendMessage();
+      sendMessage(modelId);
     }
   };
 
@@ -393,65 +385,74 @@ export default function Home() {
         </div>
       </div>
       
-      {/* Main Content */}
-      <div className={`chat-container p-4 sm:p-6 ${menuOpen ? 'content-with-menu' : 'content-without-menu'}`}>
+      {/* Main Content - Grid of Chats */}
+      <div className={`p-4 sm:p-6 ${menuOpen ? 'content-with-menu' : 'content-without-menu'}`}>
         <h1 className="text-2xl font-semibold mb-6 text-center">Persistence Protocol</h1>
         
-        <div className="messages-container mb-4">
-          {messages.map((message) => (
-            <div
-              key={message.id || `msg_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`}
-              className={`message ${message.role === 'user' ? 'user-message' : 
-                message.model ? `system-message model-${message.model}` : 'system-message model-default'}`}
-            >
-              {/* Add model name for assistant messages with improved styling */}
-              {message.role === 'assistant' && (
-                <div 
-                  className="text-xs font-bold mb-1 pb-1 border-b border-gray-200" 
-                  key={`model_${message.id || Date.now()}`}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {models.filter(model => model.selected).map(model => (
+            <div key={model.id} className="chat-grid-item border border-gray-200 rounded-lg overflow-hidden flex flex-col h-[500px]">
+              <div className="chat-header p-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200">
+                <h2 className="font-semibold">{model.name}</h2>
+              </div>
+              
+              <div className="messages-container flex-grow overflow-y-auto p-3">
+                {chats[model.id]?.messages.map((message) => (
+                  <div
+                    key={message.id || `msg_${model.id}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`}
+                    className={`message ${message.role === 'user' ? 'user-message' : 
+                      message.model ? `system-message model-${message.model}` : 'system-message model-default'}`}
+                  >
+                    {message.role === 'assistant' && (
+                      <div 
+                        className="text-xs font-bold mb-1 pb-1 border-b border-gray-200" 
+                        key={`model_${message.id || Date.now()}`}
+                      >
+                        {message.model ? 
+                          (models.find(m => m.id === message.model)?.name || message.modelName || 'AI') : 
+                          'Persistence Protocol'}
+                      </div>
+                    )}
+                    <p className="whitespace-pre-wrap text-sm">{message.content}</p>
+                    <div className="text-xs opacity-50 mt-1" key={`time_${message.id || Date.now()}`}>
+                      {formatTimestamp(message.timestamp)}
+                    </div>
+                  </div>
+                ))}
+                {chats[model.id]?.isLoading && (
+                  <div className="message system-message" key={`loading-message-${model.id}`}>
+                    <p>Thinking...</p>
+                  </div>
+                )}
+                <div ref={el => messagesEndRefs.current[model.id] = el} />
+              </div>
+              
+              <div className="input-container h-24 min-h-24 border-t border-gray-200">
+                <textarea
+                  ref={el => textareaRefs.current[model.id] = el}
+                  className="message-input text-sm"
+                  value={chats[model.id]?.inputValue || ''}
+                  onChange={(e) => handleTextareaChange(model.id, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(e, model.id)}
+                  placeholder="Type your message here... (Shift+Enter for new line)"
+                  rows={2}
+                  disabled={chats[model.id]?.isLoading}
+                  style={{ 
+                    minHeight: '60px', 
+                    height: '60px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+                <button 
+                  className="send-button text-sm"
+                  onClick={() => sendMessage(model.id)}
+                  disabled={chats[model.id]?.isLoading || !chats[model.id]?.inputValue?.trim()}
                 >
-                  {message.model ? 
-                    (models.find(m => m.id === message.model)?.name || message.modelName || 'AI') : 
-                    'Persistence Protocol'}
-                </div>
-              )}
-              <p className="whitespace-pre-wrap">{message.content}</p>
-              <div className="text-xs opacity-50 mt-1" key={`time_${message.id || Date.now()}`}>
-                {formatTimestamp(message.timestamp)}
+                  Send
+                </button>
               </div>
             </div>
           ))}
-          {isLoading && (
-            <div className="message system-message" key="loading-message">
-              <p>Thinking...</p>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-        
-        <div className="input-container">
-          <textarea
-            ref={textareaRef}
-            className="message-input"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type your message here... (Shift+Enter for new line)"
-            rows={3}
-            disabled={isLoading}
-            style={{ 
-              minHeight: '100px', 
-              height: 'auto',
-              boxSizing: 'border-box'
-            }}
-          />
-          <button 
-            className="send-button" 
-            onClick={handleSendMessage}
-            disabled={isLoading || inputValue.trim() === ''}
-          >
-            Send
-          </button>
         </div>
       </div>
     </>

@@ -47,21 +47,30 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.chat-container {
-  max-width: 800px;
-  margin: 0 auto;
-  height: 100vh;
+/* Grid layout styles */
+.grid {
+  display: grid;
+  width: 100%;
+}
+
+.chat-grid-item {
+  background-color: var(--background);
+  height: 500px;
   display: flex;
   flex-direction: column;
 }
 
+.chat-header {
+  padding: 0.5rem 1rem;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Update message container for grid layout */
 .messages-container {
   flex-grow: 1;
   overflow-y: auto;
-  margin-bottom: 1rem;
-  padding: 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
+  padding: 0.5rem;
 }
 
 .message {
@@ -82,6 +91,15 @@ body {
   margin-right: auto;
 }
 
+/* Make messages smaller in grid view */
+.chat-grid-item .message {
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  max-width: 90%;
+  font-size: 0.875rem;
+}
+
 .input-container {
   display: flex;
   border: 1px solid var(--border-color);
@@ -90,6 +108,17 @@ body {
   margin-bottom: 1rem;
   align-items: stretch;
   min-height: 100px; /* Add minimum height to container */
+}
+
+/* Smaller input area for grid layout */
+.chat-grid-item .input-container {
+  min-height: 60px;
+  height: 60px;
+  margin-bottom: 0;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
 }
 
 .message-input {
@@ -107,6 +136,12 @@ body {
   box-sizing: border-box; /* Ensure padding is included in height */
 }
 
+.chat-grid-item .message-input {
+  min-height: 60px;
+  font-size: 0.875rem;
+  padding: 0.5rem;
+}
+
 .send-button {
   padding: 0.75rem 1.5rem;
   background-color: var(--foreground);
@@ -120,8 +155,25 @@ body {
   align-items: center;
 }
 
+.chat-grid-item .send-button {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
 .send-button:hover {
   opacity: 0.9;
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 768px) {
+  .grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+  
+  .chat-grid-item {
+    height: 400px;
+    margin-bottom: 1rem;
+  }
 }
 
 /* Side menu styles */
