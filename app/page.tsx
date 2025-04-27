@@ -540,7 +540,7 @@ export default function Home() {
                       </div>
                       <div className="message-actions">
                         <button 
-                          className={`tts-button ${playingAudio === message.id ? 'tts-playing' : ''}`}
+                          className={`action-button tts-button ${playingAudio === message.id ? 'action-active' : ''}`}
                           onClick={() => {
                             if (playingAudio === message.id) {
                               setPlayingAudio(null);
@@ -551,10 +551,10 @@ export default function Home() {
                           disabled={playingAudio !== null && playingAudio !== message.id}
                           aria-label="Text to speech"
                         >
-                          {playingAudio === message.id ? '🔊' : '🔈'}
+                          {playingAudio === message.id ? 'Playing...' : 'Speak'}
                         </button>
                         <button 
-                          className={`illustrate-button ${generatingImage === message.id ? 'illustrate-generating' : ''}`}
+                          className={`action-button illustrate-button ${generatingImage === message.id ? 'action-active' : ''}`}
                           onClick={() => {
                             if (generatingImage === message.id) {
                               // Already generating, do nothing
@@ -566,7 +566,7 @@ export default function Home() {
                           disabled={generatingImage !== null}
                           aria-label="Generate illustration"
                         >
-                          {generatingImage === message.id ? '⏳' : '🖼️'}
+                          {generatingImage === message.id ? 'Creating...' : 'Illustrate'}
                         </button>
                       </div>
                     </div>

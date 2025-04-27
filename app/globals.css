@@ -399,36 +399,66 @@ input:checked + .toggle-slider:before {
 /* Message actions container */
 .message-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.3rem;
 }
 
-/* TTS button styling */
-.tts-button {
+/* Common styles for action buttons */
+.action-button {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 0.75rem;
-  opacity: 0.6;
-  transition: opacity 0.2s;
-  padding: 0.25rem;
-  border-radius: 50%;
+  font-size: 0.6rem;
+  color: #888;
+  opacity: 0.7;
+  transition: all 0.2s;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-weight: 500;
 }
 
-.tts-button:hover {
+.action-button:hover {
   opacity: 1;
   background-color: rgba(0, 0, 0, 0.05);
+  color: #555;
 }
 
-.tts-button:disabled {
+.action-button:disabled {
   cursor: not-allowed;
   opacity: 0.3;
 }
 
-.tts-playing {
+.action-active {
   opacity: 1;
+  color: #555;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Dark mode adjustments */
+.dark .action-button {
+  color: #aaa;
+}
+
+.dark .action-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ccc;
+}
+
+.dark .action-active {
+  color: #ccc;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Animation for active states */
+.tts-button.action-active {
+  animation: pulse 1.5s infinite;
+}
+
+.illustrate-button.action-active {
   animation: pulse 1.5s infinite;
 }
 
@@ -441,45 +471,6 @@ input:checked + .toggle-slider:before {
   }
   100% {
     transform: scale(1);
-  }
-}
-
-/* Illustrate button styling */
-.illustrate-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 0.75rem;
-  opacity: 0.6;
-  transition: opacity 0.2s;
-  padding: 0.25rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.illustrate-button:hover {
-  opacity: 1;
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-.illustrate-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.3;
-}
-
-.illustrate-generating {
-  opacity: 1;
-  animation: spin 1.5s infinite linear;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
   }
 }
 
