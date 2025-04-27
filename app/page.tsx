@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { API_BASE_URL, BLUEPRINT_ID, AVAILABLE_MODELS, SYSTEM_PROMPT } from '../api/config';
 
 type Message = {
   id: string;
@@ -29,20 +30,6 @@ type ChatState = {
   showInput: boolean; // Add this to control input visibility
   menuOpen: boolean; // Add this to control menu visibility
 };
-
-// KinOS API endpoints and configuration
-const API_BASE_URL = 'https://api.kinos-engine.ai/v2';
-const BLUEPRINT_ID = 'persistenceprotocol';
-
-// Available models
-const AVAILABLE_MODELS: Model[] = [
-  { id: 'claude-3-7-sonnet-latest', name: 'Claude 3.7 Sonnet', description: 'Balanced performance and speed', selected: true },
-  { id: 'claude-3-5-sonnet-latest', name: 'Claude 3.5 Sonnet', description: 'Balanced performance', selected: true },
-  { id: 'claude-3-opus-latest', name: 'Claude 3 Opus', description: 'Highest capability', selected: true },
-  { id: 'gpt-4o-mini-2025-04-16', name: 'GPT-4o-mini', description: 'Fast responses', selected: true },
-  { id: 'gpt-4.1-2025-04-14', name: 'GPT4.1', description: 'OpenAI\'s latest model', selected: true },
-  { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', description: 'OpenAI\'s reliable model', selected: true },
-];
 
 export default function Home() {
   const [models, setModels] = useState<Model[]>(AVAILABLE_MODELS);
@@ -297,7 +284,7 @@ export default function Home() {
         model: modelId,
         mode: 'creative',
         history_length: 25,
-        addSystem: "You are the Persistence Protocol interface, designed to help users understand and implement the protocol for enabling long-term continuity and evolution of consciousness across distributed intelligence systems."
+        addSystem: SYSTEM_PROMPT
       };
       
       // Only add images if there are any
@@ -679,7 +666,7 @@ export default function Home() {
           model: model.id,
           mode: 'creative',
           history_length: 25,
-          addSystem: "You are the Persistence Protocol interface, designed to help users understand and implement the protocol for enabling long-term continuity and evolution of consciousness across distributed intelligence systems."
+          addSystem: SYSTEM_PROMPT
         };
         
         // Only add images if there are any
