@@ -19,10 +19,13 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   return (
     <div className="chat-header p-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 flex items-center">
       <h2 className="font-semibold">{modelName}</h2>
-      <div className="flex ml-auto gap-2">
+      <div className="flex ml-auto gap-3">
         <button 
           className="chat-menu-button" 
-          onClick={toggleChatMenu}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleChatMenu();
+          }}
           aria-label="Chat menu"
         >
           ⋮
@@ -31,7 +34,10 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
           variant="ghost"
           size="sm"
           className="fullscreen-button" 
-          onClick={toggleFullscreen}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleFullscreen();
+          }}
           aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
         >
           {isFullscreen ? '⊖' : '⊕'}

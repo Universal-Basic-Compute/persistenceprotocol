@@ -580,12 +580,12 @@ input:checked + .toggle-slider:before {
   font-size: 1rem;
   opacity: 0.6;
   transition: opacity 0.2s;
-  padding: 0.25rem;
-  border-radius: 50%;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: auto;
+  margin-right: 0.25rem;
 }
 
 .chat-menu-button:hover {
@@ -843,20 +843,12 @@ input:checked + .toggle-slider:before {
 
 /* Add fullscreen button styles */
 .fullscreen-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 0.75rem;
-  opacity: 0.6;
-  transition: opacity 0.2s;
-  padding: 0.25rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  padding: 0.25rem 0.5rem !important;
+  border-radius: 0.25rem !important;
+  margin-left: 0.25rem;
+  position: relative;
+  top: auto;
+  right: auto;
 }
 
 .fullscreen-button:hover {
