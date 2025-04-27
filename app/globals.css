@@ -311,7 +311,7 @@ input:checked + .toggle-slider:before {
   background-color: var(--claude-3-haiku-color);
 }
 
-.model-gpt_4 {
+.model-gpt_4_1_2025_04_14 {
   background-color: var(--gpt-4o-color);
 }
 
