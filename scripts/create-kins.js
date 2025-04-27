@@ -8,7 +8,7 @@ const MODELS = [
   'claude-3-opus-20240229',
   'o4-mini',
   'gpt-4.1',
-  'gpt-3.5-turbo'
+  'gpt-4o'
 ];
 
 async function createKin(modelId) {
