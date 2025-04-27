@@ -122,7 +122,7 @@ body {
   background-color: var(--claude-3-opus-bg);
 }
 
-.chat-grid-item[data-model="o4-mini"] {
+.chat-grid-item[data-model="o4-mini-2025-04-16"] {
   background-color: var(--claude-3-haiku-bg);
 }
 
