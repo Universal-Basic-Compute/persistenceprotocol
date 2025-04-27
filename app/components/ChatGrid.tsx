@@ -69,7 +69,7 @@ const ChatGrid: React.FC<ChatGridProps> = ({
           }}
         >
           <div 
-            className={`chat-grid-item border border-gray-200 rounded-lg overflow-hidden flex flex-col h-[500px] relative ${fullscreenChat === model.id ? 'chat-fullscreen' : ''}`}
+            className={`chat-grid-item rounded-lg overflow-hidden flex flex-col h-[500px] relative ${fullscreenChat === model.id ? 'chat-fullscreen' : ''}`}
           >
             <ChatHeader 
               modelName={model.name}
