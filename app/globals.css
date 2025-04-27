@@ -490,6 +490,139 @@ input:checked + .toggle-slider:before {
   border: 1px solid var(--border-color);
 }
 
+/* Image upload button and preview */
+.image-upload-container {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 100px);
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+.image-upload-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  padding: 0.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.image-upload-button:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.image-upload-input {
+  display: none;
+}
+
+.image-preview-container {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-image-button {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 16px;
+  height: 16px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* Adjust input container to make room for image upload */
+.chat-grid-item .input-container {
+  position: relative;
+  padding-bottom: 20px;
+}
+
+.chat-grid-item .message-input {
+  padding-left: 40px;
+}
+
+/* User message with images */
+.user-message-with-images {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-images-container {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.user-image-wrapper {
+  position: relative;
+  max-width: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+  flex: 1 1 calc(50% - 4px);
+  min-width: 100px;
+}
+
+.user-image {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  object-fit: contain;
+}
+
+/* Image gallery in messages */
+.message-images-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.message-image-item {
+  flex: 1 1 calc(50% - 4px);
+  min-width: 100px;
+  max-width: 100%;
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.message-image-item img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
 /* Dark mode adjustments */
 .dark .tts-button:hover,
 .dark .illustrate-button:hover {
