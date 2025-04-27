@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import Button from './components/Button';
 import ReactMarkdown from 'react-markdown';
