@@ -3,10 +3,10 @@ const BLUEPRINT_ID = 'persistenceprotocol';
 
 // Models to create kins for - update to match app/api/config.ts
 const MODELS = [
-  'claude-3-7-sonnet-20240307',
+  'claude-3-7-sonnet-latest',
   'claude-3-5-sonnet-20240620',
   'claude-3-opus-20240229',
-  'gpt-4o-mini-2025-04-16',
+  'o4-mini-2025-04-16',
   'gpt-4.1-2025-04-14',
   'gpt-3.5-turbo'
 ];

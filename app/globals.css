@@ -110,7 +110,7 @@ body {
 }
 
 /* Add model-specific background colors to chat grid items */
-.chat-grid-item[data-model="claude-3-7-sonnet-20240307"] {
+.chat-grid-item[data-model="claude-3-7-sonnet-latest"] {
   background-color: var(--claude-3-7-sonnet-bg);
 }
 
@@ -122,7 +122,7 @@ body {
   background-color: var(--claude-3-opus-bg);
 }
 
-.chat-grid-item[data-model="gpt-4o-mini-2025-04-16"] {
+.chat-grid-item[data-model="o4-mini-2025-04-16"] {
   background-color: var(--claude-3-haiku-bg);
 }
 
@@ -389,7 +389,7 @@ input:checked + .toggle-slider:before {
 }
 
 /* Model-specific message classes */
-.model-claude_3_7_sonnet_20240307 {
+.model-claude_3_7_sonnet_latest {
   background-color: var(--claude-3-7-sonnet-color);
 }
 
@@ -401,7 +401,7 @@ input:checked + .toggle-slider:before {
   background-color: var(--claude-3-opus-color);
 }
 
-.model-gpt_4o_mini_2025_04_16 {
+.model-o4_mini_2025_04_16 {
   background-color: var(--claude-3-haiku-color);
 }
 
@@ -945,7 +945,7 @@ input:checked + .toggle-slider:before {
 }
 
 /* Claude 3.7 Sonnet - Rounded corners with a slight wave on top */
-.model-shape-claude_3_7_sonnet_20240307::before {
+.model-shape-claude_3_7_sonnet_latest::before {
   content: "";
   position: absolute;
   top: 0;
@@ -992,11 +992,11 @@ input:checked + .toggle-slider:before {
 }
 
 /* GPT-4o Mini - Playful asymmetric shape */
-.model-shape-gpt_4o_mini_2025_04_16 {
+.model-shape-o4_mini_2025_04_16 {
   border-radius: 0.5rem 2rem 0.5rem 2rem !important;
 }
 
-.model-shape-gpt_4o_mini_2025_04_16::after {
+.model-shape-o4_mini_2025_04_16::after {
   content: "";
   position: absolute;
   bottom: 0;
