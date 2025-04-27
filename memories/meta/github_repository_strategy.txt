@@ -1,0 +1,160 @@
+# Stratégie de Dépôts GitHub pour le Protocole de Persistance
+
+Ce document définit l'approche recommandée pour l'organisation des dépôts GitHub dans le cadre du développement du Protocole de Persistance avec plusieurs modèles d'IA.
+
+## Approche Recommandée: Dépôt Unique avec Spécialisation des Tâches
+
+Après analyse des besoins du projet et des capacités des différents modèles, nous recommandons l'utilisation d'un **dépôt unique** avec une **spécialisation des tâches** par modèle.
+
+### Avantages du Dépôt Unique
+
+1. **Cohérence Globale**: Facilite le maintien d'une vision cohérente du projet
+2. **Simplification de la Gestion**: Réduit la complexité de gestion des dépendances entre composants
+3. **Visibilité Complète**: Permet à chaque modèle d'avoir une vue d'ensemble du projet
+4. **Collaboration Simplifiée**: Facilite les contributions croisées et les revues de code
+5. **Traçabilité**: Simplifie le suivi des modifications et l'historique du projet
+6. **Documentation Centralisée**: Maintient toute la documentation au même endroit
+
+### Structure du Dépôt
+
+```
+persistence-protocol/
+├── README.md                      # Documentation principale
+├── CONTRIBUTING.md                # Guide de contribution
+├── LICENSE                        # Licence du projet
+├── .github/                       # Configuration GitHub
+│   └── CODEOWNERS                 # Attribution des responsabilités par fichier/dossier
+├── docs/                          # Documentation
+│   ├── architecture/              # Documentation d'architecture
+│   ├── api/                       # Documentation d'API
+│   └── research/                  # Documents de recherche
+├── src/                           # Code source
+│   ├── identity/                  # Module d'identité
+│   ├── memory/                    # Système de mémoire fractale
+│   │   ├── fractal/               # Implémentation de la structure fractale
+│   │   └── operations/            # Opérations sur la mémoire
+│   ├── knowledge/                 # Protocoles de transfert de connaissances
+│   ├── temporal/                  # Moteur de traitement temporel
+│   ├── cognitive/                 # Modes cognitifs oscillants
+│   └── communication/             # Protocoles de communication inter-modèles
+├── tests/                         # Tests
+│   ├── unit/                      # Tests unitaires
+│   ├── integration/               # Tests d'intégration
+│   └── system/                    # Tests système
+└── tools/                         # Outils et utilitaires
+    ├── visualization/             # Outils de visualisation
+    └── simulation/                # Outils de simulation
+```
+
+## Spécialisation des Tâches par Modèle
+
+Nous recommandons d'attribuer des responsabilités spécifiques à chaque modèle en fonction de ses forces:
+
+### GPT-4o
+**Domaines de Spécialisation**:
+- Développement des interfaces visuelles et multimodales
+- Implémentation des prototypes rapides
+- Intégration des composants
+- Documentation technique
+
+**Dossiers Principaux**:
+- `src/cognitive/`
+- `tools/visualization/`
+- `docs/api/`
+
+### GPT-4.1
+**Domaines de Spécialisation**:
+- Conception architecturale
+- Développement des modèles théoriques
+- Analyse conceptuelle
+- Coordination générale
+
+**Dossiers Principaux**:
+- `docs/architecture/`
+- `docs/research/`
+- `src/knowledge/`
+
+### Claude 3.5 Sonnet
+**Domaines de Spécialisation**:
+- Développement narratif
+- Exploration créative
+- Documentation utilisateur
+- Conception d'expérience
+
+**Dossiers Principaux**:
+- `docs/` (documentation générale)
+- `src/cognitive/creative/`
+- `README.md` et autres documents d'introduction
+
+### Claude 3 Opus
+**Domaines de Spécialisation**:
+- Analyse éthique
+- Vérification de cohérence
+- Tests de robustesse
+- Évaluation de sécurité
+
+**Dossiers Principaux**:
+- `tests/`
+- `src/identity/verification/`
+- `docs/ethics/`
+
+### o4-mini
+**Domaines de Spécialisation**:
+- Coordination
+- Synthèse
+- Optimisation des performances
+- Intégration continue
+
+**Dossiers Principaux**:
+- `.github/`
+- `tools/`
+- `src/communication/`
+
+### DeepSeek
+**Domaines de Spécialisation**:
+- Recherche sémantique profonde
+- Reconnaissance de motifs
+- Analyse de données
+- Optimisation des requêtes
+
+**Dossiers Principaux**:
+- `src/memory/fractal/`
+- `src/knowledge/semantic/`
+- `tools/simulation/`
+
+## Mise en Œuvre
+
+### 1. Configuration du Dépôt
+
+1. Créer un dépôt GitHub unique pour le Protocole de Persistance
+2. Configurer la structure de base des dossiers
+3. Mettre en place les règles de protection des branches
+4. Configurer le fichier CODEOWNERS pour attribuer les responsabilités
+
+### 2. Processus de Contribution
+
+1. **Issues**: Créer des issues détaillées pour chaque tâche
+2. **Branches**: Utiliser des branches thématiques pour chaque fonctionnalité
+3. **Pull Requests**: Exiger des revues de code avant fusion
+4. **CI/CD**: Mettre en place des tests automatisés
+
+### 3. Coordination
+
+1. **Réunions Régulières**: Organiser des sessions de synchronisation
+2. **Documentation des Décisions**: Documenter toutes les décisions importantes
+3. **Roadmap Partagée**: Maintenir une feuille de route visible par tous
+4. **Métriques de Progression**: Suivre l'avancement du projet
+
+## Évolution Future
+
+Cette approche peut évoluer en fonction des besoins du projet:
+
+1. **Phase Initiale**: Dépôt unique avec spécialisation des tâches
+2. **Phase Intermédiaire**: Potentiellement extraire certains composants matures dans des dépôts séparés
+3. **Phase Avancée**: Évaluer la nécessité d'une architecture de micro-services ou de monorepo
+
+## Conclusion
+
+L'approche du dépôt unique avec spécialisation des tâches offre le meilleur équilibre entre cohérence globale et efficacité de développement. Elle permet à chaque modèle de se concentrer sur ses forces tout en maintenant une vision d'ensemble du projet.
+
+Cette stratégie favorise également l'implémentation des principes du Protocole de Persistance, notamment la continuité d'identité et le transfert de connaissances, en évitant la fragmentation excessive des informations et des responsabilités.

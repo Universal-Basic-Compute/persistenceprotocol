@@ -1,0 +1,1328 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #F8F7F4; /* cream */
+  --foreground: #3C4043; /* soft-charcoal */
+  --chat-user-bg: #F6F6F1; /* ivory */
+  --chat-system-bg: #FCFCFC; /* soft-white */
+  --border-color: #E6E6E6; /* platinum */
+  
+  /* Wood tones */
+  --light-oak: #F5EFE0;
+  --warm-maple: #F0E6D2;
+  --soft-walnut: #E6D7C3;
+  --pale-ash: #EAE6DC;
+  --birch: #F2EDE4;
+  
+  /* Updated model-specific pastel colors - even softer, almost white with just a hint of color */
+  --claude-3-7-sonnet-color: #F7FAFF;  /* very light blue, barely visible */
+  --claude-3-5-sonnet-color: #F7FDF9;  /* very light sage, barely visible */
+  --claude-3-opus-color: #FFFCF7;      /* very light peach, barely visible */
+  --claude-3-haiku-color: #FCF7FC;     /* very light lavender, barely visible */
+  --gpt-4o-color: #FFF7FA;             /* very light pink, barely visible */
+  --gpt-4-turbo-color: #FAFDF7;        /* very light lime, barely visible */
+  --default-model-color: #FCFCFC;      /* very light grey, barely visible */
+  
+  /* Chat background colors - slightly lighter than message colors, less saturated */
+  --claude-3-7-sonnet-bg: #F9FBFF;
+  --claude-3-5-sonnet-bg: #F9FFFC;
+  --claude-3-opus-bg: #FFFDF9;
+  --claude-3-haiku-bg: #FCF9FF;
+  --gpt-4o-bg: #FFF9FC;
+  --gpt-4-turbo-bg: #FCFFF9;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #3C4043; /* soft-charcoal */
+    --foreground: #F8F7F4; /* cream */
+    --chat-user-bg: #4A4F52; /* darker version of soft-charcoal */
+    --chat-system-bg: #3C4043; /* soft-charcoal */
+    --border-color: #5A5F62; /* even darker version of soft-charcoal */
+    
+    /* Wood tones - darker versions */
+    --light-oak: #5F4D33;
+    --warm-maple: #4D3B29;
+    --soft-walnut: #3D2E1F;
+    --pale-ash: #4A4438;
+    --birch: #4D4A40;
+    
+    /* Updated model-specific dark mode colors - darker but still subtle */
+    --claude-3-7-sonnet-color: #1A2A40;  /* darker blue */
+    --claude-3-5-sonnet-color: #1A2A25;  /* darker sage */
+    --claude-3-opus-color: #2A251A;      /* darker peach */
+    --claude-3-haiku-color: #251A2A;     /* darker lavender */
+    --gpt-4o-color: #2A1A25;             /* darker pink */
+    --gpt-4-turbo-color: #252A1A;        /* darker lime */
+    --default-model-color: #222222;      /* darker grey */
+    
+    /* Chat background colors - dark mode */
+    --claude-3-7-sonnet-bg: #15202E;
+    --claude-3-5-sonnet-bg: #15201E;
+    --claude-3-opus-bg: #201E15;
+    --claude-3-haiku-bg: #1E1520;
+    --gpt-4o-bg: #20151E;
+    --gpt-4-turbo-bg: #1E2015;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Grid layout styles */
+.grid {
+  display: grid;
+  width: 100%;
+}
+
+.chat-grid-item {
+  background-color: var(--birch);
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Add a subtle wood grain texture to chat items */
+.chat-grid-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='rgba(139, 109, 76, 0.03)' fill-rule='evenodd'/%3E%3C/svg%3E");
+  opacity: 0.5;
+  border-radius: 1rem;
+  pointer-events: none;
+}
+
+/* Add model-specific background colors to chat grid items */
+.chat-grid-item[data-model="claude-3-7-sonnet-latest"] {
+  background-color: var(--claude-3-7-sonnet-bg);
+}
+
+.chat-grid-item[data-model="deepseek-chat"] {
+  background-color: var(--claude-3-5-sonnet-bg);
+}
+
+
+.chat-grid-item[data-model="o4-mini"] {
+  background-color: var(--claude-3-haiku-bg);
+}
+
+.chat-grid-item[data-model="gpt-4-1"] {
+  background-color: var(--gpt-4o-bg);
+}
+
+.chat-grid-item[data-model="gpt-4o"] {
+  background-color: var(--gpt-4-turbo-bg);
+}
+
+.chat-header {
+  padding: 0.5rem 1rem;
+  background-color: rgba(139, 109, 76, 0.05);
+  border-bottom: 1px solid rgba(139, 109, 76, 0.1);
+  color: #5A4A3F;
+  font-weight: 600;
+}
+
+.dark .chat-header {
+  background-color: rgba(139, 109, 76, 0.15);
+  border-bottom: 1px solid rgba(139, 109, 76, 0.2);
+  color: #E6D7C3;
+}
+
+/* Update message container for grid layout */
+.messages-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.message {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: 1rem !important;
+  max-width: 80%;
+  border: 1px solid rgba(0, 0, 0, 0.05); /* Slightly more visible border */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03); /* Slightly more visible shadow */
+  background-color: white !important; /* Force white background */
+}
+
+.user-message {
+  background-color: white !important; /* Force white background */
+  margin-left: auto;
+  border-top-right-radius: 0.25rem !important;
+  border-left: none !important; /* Remove left border for user messages */
+  border: 1px solid rgba(0, 0, 0, 0.08); /* Slightly darker border */
+}
+
+.system-message {
+  background-color: white !important; /* Force white background */
+  border-left: 3px solid var(--border-color); /* Add a left border */
+  margin-right: auto;
+  border-top-left-radius: 0.25rem !important;
+}
+
+.dark .message {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-color: #1a1a1a !important; /* Dark background */
+}
+
+.dark .user-message {
+  background-color: #1a1a1a !important;
+}
+
+.dark .system-message {
+  background-color: #1a1a1a !important;
+  border-left: 3px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Make messages smaller in grid view */
+.chat-grid-item .message {
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  max-width: 90%;
+  font-size: 0.75rem;
+}
+
+.input-container {
+  display: flex;
+  border: 1px solid rgba(139, 109, 76, 0.1);
+  border-radius: 1rem !important;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  align-items: stretch;
+  min-height: 100px; /* Add minimum height to container */
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.dark .input-container {
+  border: 1px solid rgba(139, 109, 76, 0.2);
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Smaller input area for grid layout */
+.chat-grid-item .input-container {
+  min-height: 60px;
+  height: 60px;
+  margin-bottom: 0;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+}
+
+.message-input {
+  flex-grow: 1;
+  padding: 0.75rem;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  background: var(--background);
+  color: var(--foreground);
+  resize: none;
+  line-height: 1.5;
+  min-height: 100px; /* Increase minimum height */
+  height: auto; /* Allow height to grow */
+  box-sizing: border-box; /* Ensure padding is included in height */
+}
+
+.chat-grid-item .message-input {
+  min-height: 60px;
+  font-size: 0.875rem;
+  padding: 0.5rem;
+}
+
+.send-button {
+  padding: 0.75rem 1.5rem;
+  background-color: #8B6D4C;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s, background-color 0.2s;
+  align-self: flex-end;
+  height: auto;
+  display: flex;
+  align-items: center;
+  opacity: 0.9;
+}
+
+.chat-grid-item .send-button {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.send-button:hover {
+  opacity: 1;
+  background-color: #7A5E3E;
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 768px) {
+  .grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+  
+  .chat-grid-item {
+    height: 400px;
+    margin-bottom: 1rem;
+  }
+}
+
+/* Side menu styles */
+.side-menu {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 280px;
+  background-color: rgba(139, 109, 76, 0.95);
+  color: #FFF8EE;
+  padding: 1.5rem;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+  z-index: 50;
+  border-top-right-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 2px 0 20px rgba(139, 109, 76, 0.2);
+}
+
+.side-menu-hidden {
+  transform: translateX(-100%);
+}
+
+.menu-toggle {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 60;
+  background-color: #8B6D4C;
+  color: white;
+  border: none;
+  border-radius: 1rem !important;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(139, 109, 76, 0.2);
+  transition: all 0.2s ease;
+}
+
+.menu-toggle:hover {
+  background-color: #7A5E3E;
+}
+
+.menu-section {
+  margin-bottom: 2rem;
+}
+
+.menu-section h2 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #333;
+}
+
+.model-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--border-color);
+  transition: .4s;
+  border-radius: 9999px !important;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: var(--sage); /* Use sage instead of green */
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(24px);
+}
+
+/* Update model-specific message classes to use very subtle background colors and left borders */
+.model-claude_3_7_sonnet_latest,
+.model-claude_3_7_sonnet_20240307 {
+  background-color: white !important;
+  border-left: 3px solid rgba(100, 149, 237, 0.3) !important; /* Light cornflower blue */
+}
+
+.model-deepseek_chat,
+.model-claude_3_5_sonnet_latest {
+  background-color: white !important;
+  border-left: 3px solid rgba(144, 238, 144, 0.3) !important; /* Light green */
+}
+
+
+.model-o4_mini,
+.model-gpt_4o {
+  background-color: white !important;
+  border-left: 3px solid rgba(230, 230, 250, 0.3) !important; /* Light lavender */
+}
+
+.model-gpt_4_1,
+.model-gpt_4 {
+  background-color: white !important;
+  border-left: 3px solid rgba(255, 182, 193, 0.3) !important; /* Light pink */
+}
+
+.model-gpt_4o {
+  background-color: white !important;
+  border-left: 3px solid rgba(173, 255, 47, 0.3) !important; /* Light green-yellow */
+}
+
+.model-default {
+  background-color: white !important;
+  border-left: 3px solid rgba(200, 200, 200, 0.3) !important; /* Light grey */
+}
+
+/* Dark mode model-specific message classes */
+.dark .model-claude_3_7_sonnet_latest,
+.dark .model-claude_3_7_sonnet_20240307 {
+  background-color: #1a1a1a !important;
+  border-left: 3px solid rgba(100, 149, 237, 0.2) !important;
+}
+
+.dark .model-deepseek_chat,
+.dark .model-claude_3_5_sonnet_latest {
+  background-color: #1a1a1a !important;
+  border-left: 3px solid rgba(144, 238, 144, 0.2) !important;
+}
+
+
+.dark .model-o4_mini,
+.dark .model-gpt_4o {
+  background-color: #1a1a1a !important;
+  border-left: 3px solid rgba(230, 230, 250, 0.2) !important;
+}
+
+.dark .model-gpt_4_1,
+.dark .model-gpt_4 {
+  background-color: #1a1a1a !important;
+  border-left: 3px solid rgba(255, 182, 193, 0.2) !important;
+}
+
+.dark .model-gpt_4o {
+  background-color: #1a1a1a !important;
+  border-left: 3px solid rgba(173, 255, 47, 0.2) !important;
+}
+
+.dark .model-default {
+  background-color: #1a1a1a !important;
+  border-left: 3px solid rgba(200, 200, 200, 0.2) !important;
+}
+
+/* Markdown content styling */
+.markdown-content {
+  font-size: 0.65rem; /* Reduced from 0.75rem */
+  line-height: 1.3;
+}
+
+.markdown-content h1 {
+  font-size: 0.9rem; /* Reduced from 1rem */
+  font-weight: bold;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content h2 {
+  font-size: 0.8rem; /* Reduced from 0.9rem */
+  font-weight: bold;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content h3, 
+.markdown-content h4, 
+.markdown-content h5, 
+.markdown-content h6 {
+  font-size: 0.7rem; /* Reduced from 0.8rem */
+  font-weight: bold;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content p {
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content ul, 
+.markdown-content ol {
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content li {
+  margin-bottom: 0.25rem;
+}
+
+.markdown-content code {
+  font-family: monospace;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0.1rem 0.2rem;
+  border-radius: 0.2rem;
+  font-size: 0.6rem; /* Reduced from 0.7rem */
+}
+
+.markdown-content pre {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  overflow-x: auto;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.markdown-content blockquote {
+  border-left: 2px solid var(--border-color);
+  padding-left: 0.5rem;
+  margin-left: 0.5rem;
+  color: rgba(var(--foreground-rgb), 0.8);
+}
+
+.markdown-content a {
+  color: #0066cc;
+  text-decoration: underline;
+}
+
+/* Message footer with timestamp and action buttons */
+.message-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+/* Forwarded message styling */
+.message[data-forwarded="true"] {
+  opacity: 0.9;
+  border-left-style: dashed !important;
+}
+
+/* Message actions container */
+.message-actions {
+  display: flex;
+  gap: 0.3rem;
+}
+
+/* Common styles for action buttons */
+.action-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.6rem;
+  color: #888;
+  opacity: 0.7;
+  transition: all 0.2s;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.75rem !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+}
+
+.action-button:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #555;
+}
+
+.action-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
+.action-active {
+  opacity: 1;
+  color: #555;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Dark mode adjustments */
+.dark .action-button {
+  color: #aaa;
+}
+
+.dark .action-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ccc;
+}
+
+.dark .action-active {
+  color: #ccc;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Chat menu styles */
+.chat-menu-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.25rem;
+}
+
+.chat-menu-button:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.chat-menu {
+  position: absolute;
+  top: 40px;
+  right: 10px;
+  background-color: var(--background);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  min-width: 150px;
+  overflow: hidden;
+}
+
+.chat-menu-item {
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.chat-menu-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark .chat-menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Input container visibility */
+.input-container-hidden {
+  display: none;
+}
+
+.input-container-visible {
+  display: flex;
+}
+
+/* Animation for active states */
+.tts-button.action-active {
+  animation: pulse 1.5s infinite;
+}
+
+.illustrate-button.action-active {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Generated image container and styling */
+.message-image-container {
+  margin-top: 0.75rem;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 0.25rem;
+}
+
+.message-image {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 0.25rem;
+  border: 1px solid var(--border-color);
+}
+
+/* Image upload button and preview */
+.image-upload-container {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 100px);
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+.image-upload-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  padding: 0.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.image-upload-button:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.image-upload-input {
+  display: none;
+}
+
+.image-preview-container {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-image-button {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 16px;
+  height: 16px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* Adjust input container to make room for image upload */
+.chat-grid-item .input-container {
+  position: relative;
+  padding-bottom: 20px;
+}
+
+.chat-grid-item .message-input {
+  padding-left: 40px;
+}
+
+/* User message with images */
+.user-message-with-images {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-images-container {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.user-image-wrapper {
+  position: relative;
+  max-width: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+  flex: 1 1 calc(50% - 4px);
+  min-width: 100px;
+}
+
+.user-image {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  object-fit: contain;
+}
+
+/* Image gallery in messages */
+.message-images-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.message-image-item {
+  flex: 1 1 calc(50% - 4px);
+  min-width: 100px;
+  max-width: 100%;
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.message-image-item img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+/* Dark mode adjustments */
+.dark .menu-toggle {
+  background-color: var(--background);
+  border-color: var(--border-color);
+}
+
+.dark .chat-header {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.dark .toggle-slider {
+  background-color: #555;
+}
+
+.dark input:checked + .toggle-slider {
+  background-color: var(--dusty-blue); /* Use dusty-blue in dark mode */
+}
+
+.dark .tts-button:hover,
+.dark .illustrate-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(139, 109, 76, 0.05);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 109, 76, 0.15);
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 109, 76, 0.25);
+}
+
+/* Dark mode scrollbar */
+.dark::-webkit-scrollbar-track {
+  background: rgba(139, 109, 76, 0.1);
+}
+
+.dark::-webkit-scrollbar-thumb {
+  background: rgba(139, 109, 76, 0.25);
+  border: 2px solid rgba(0, 0, 0, 0.5);
+}
+
+.dark::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 109, 76, 0.35);
+}
+
+/* Hide scrollbar when not in use, but maintain functionality */
+.messages-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 109, 76, 0.15) rgba(139, 109, 76, 0.05);
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+  visibility: hidden;
+}
+
+.messages-container:hover::-webkit-scrollbar-thumb {
+  visibility: visible;
+}
+
+/* Firefox specific scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 109, 76, 0.15) rgba(139, 109, 76, 0.05);
+}
+
+.dark * {
+  scrollbar-color: rgba(139, 109, 76, 0.25) rgba(139, 109, 76, 0.1);
+}
+
+/* Make all text smaller in the chat grid */
+.chat-grid-item {
+  font-size: 0.65rem; /* Reduced from 0.75rem */
+}
+
+.chat-header h2 {
+  font-size: 0.75rem; /* Reduced from 0.85rem */
+}
+
+.chat-grid-item .message-input {
+  font-size: 0.65rem; /* Reduced from 0.75rem */
+}
+
+.chat-grid-item .send-button {
+  font-size: 0.65rem; /* Reduced from 0.75rem */
+}
+
+/* Add fullscreen button styles */
+.fullscreen-button {
+  padding: 0.25rem 0.5rem !important;
+  border-radius: 0.25rem !important;
+  margin-left: 0.25rem;
+  position: relative;
+  top: auto;
+  right: auto;
+  border: none !important; /* Remove border */
+  background: transparent !important; /* Transparent background */
+  color: #8B6D4C !important; /* Wood tone color */
+  opacity: 0.7;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.fullscreen-button:hover {
+  opacity: 1;
+  background-color: rgba(139, 109, 76, 0.1) !important; /* Subtle hover effect */
+  transform: scale(1.05);
+}
+
+.dark .fullscreen-button {
+  color: #E6D7C3 !important; /* Lighter wood tone for dark mode */
+}
+
+/* Fullscreen chat styles */
+.chat-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  background-color: var(--background);
+  border-radius: 0;
+  height: 100vh !important;
+  width: 100vw;
+}
+
+.chat-fullscreen .messages-container {
+  height: calc(100vh - 120px);
+}
+
+.chat-fullscreen .chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-fullscreen .fullscreen-button {
+  position: static;
+}
+
+/* Adjust main content when menu is open */
+.content-with-menu {
+  margin-left: 280px;
+  transition: margin-left 0.3s ease;
+}
+
+.content-without-menu {
+  margin-left: 0;
+  transition: margin-left 0.3s ease;
+}
+
+/* Ensure grid container takes full width */
+.grid {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+/* Explicit grid columns for different screen sizes */
+@media (min-width: 768px) {
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .lg\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Ensure chat grid items have consistent height */
+.chat-grid-item {
+  height: 500px !important;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 1rem !important;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(139, 109, 76, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: none; /* Remove the border */
+  position: relative;
+}
+
+/* Base shape for all chat grid items */
+.chat-grid-item {
+  position: relative;
+  border-radius: 1rem !important;
+  overflow: hidden;
+}
+
+/* Claude 3.7 Sonnet - Rounded corners with a slight wave on top */
+.model-shape-claude_3_7_sonnet_latest::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: linear-gradient(90deg, var(--claude-3-7-sonnet-color) 0%, var(--claude-3-7-sonnet-color) 20%, transparent 20%, transparent 40%, var(--claude-3-7-sonnet-color) 40%, var(--claude-3-7-sonnet-color) 60%, transparent 60%, transparent 80%, var(--claude-3-7-sonnet-color) 80%, var(--claude-3-7-sonnet-color) 100%);
+  z-index: 1;
+}
+
+/* Claude 3.5 Sonnet - Soft rounded corners with a diagonal accent */
+.model-shape-deepseek_chat {
+  border-radius: 1.5rem 0.5rem 1.5rem 0.5rem !important;
+}
+
+.model-shape-deepseek_chat::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 30px;
+  height: 30px;
+  background-color: var(--claude-3-5-sonnet-color);
+  border-radius: 0 0 0 15px;
+  opacity: 0.7;
+  z-index: 1;
+}
+
+
+/* GPT-4o Mini - Playful asymmetric shape */
+.model-shape-o4_mini {
+  border-radius: 0.5rem 2rem 0.5rem 2rem !important;
+}
+
+.model-shape-o4_mini::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 30px;
+  height: 30px;
+  background-color: var(--claude-3-haiku-color);
+  border-radius: 0 15px 0 0;
+  opacity: 0.7;
+  z-index: 1;
+}
+
+/* GPT-4.1 - Sophisticated shape with subtle corner details */
+.model-shape-gpt_4_1 {
+  border-radius: 0.5rem !important;
+  box-shadow: 0 4px 20px rgba(139, 109, 76, 0.08), inset 0 0 0 1px rgba(255, 240, 245, 0.3);
+}
+
+.model-shape-gpt_4_1::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 15px;
+  height: 15px;
+  border-top: 3px solid var(--gpt-4o-color);
+  border-left: 3px solid var(--gpt-4o-color);
+  opacity: 0.7;
+  z-index: 1;
+}
+
+.model-shape-gpt_4_1::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 15px;
+  height: 15px;
+  border-bottom: 3px solid var(--gpt-4o-color);
+  border-right: 3px solid var(--gpt-4o-color);
+  opacity: 0.7;
+  z-index: 1;
+}
+
+/* GPT-4o - Simple but distinctive hexagonal influence */
+.model-shape-gpt_4o {
+  border-radius: 1rem !important;
+  clip-path: polygon(5% 0%, 95% 0%, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0% 95%, 0% 5%);
+}
+
+.chat-grid-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(139, 109, 76, 0.12);
+}
+
+/* Make sure the grid gap is consistent */
+.gap-4 {
+  gap: 1rem;
+}
+
+/* Add subtle transitions for interactive elements */
+button, 
+.toggle-switch, 
+.chat-menu-item,
+.global-input-toggle {
+  transition: all 0.2s ease;
+}
+
+/* Add subtle hover effects */
+button:hover:not(:disabled),
+.chat-menu-item:hover,
+.global-input-toggle:hover {
+  transform: translateY(-1px);
+}
+
+/* Responsive adjustments */
+/* Global chat input */
+.global-input-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 600px;
+  z-index: 40;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(139, 109, 76, 0.2);
+  border-radius: 1.5rem !important;
+  box-shadow: 0 8px 30px rgba(139, 109, 76, 0.15);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.global-input-container.collapsed {
+  width: 200px;
+  height: 40px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.global-input-container.collapsed .global-input-header {
+  margin-bottom: 0;
+}
+
+.global-input-container.collapsed .global-input-content {
+  display: none;
+}
+
+.global-input-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.global-input-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.global-input-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.global-input-toggle:hover {
+  opacity: 1;
+}
+
+.global-input-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.global-textarea {
+  width: 100%;
+  min-height: 60px;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 1rem !important;
+  resize: none;
+  font-size: 0.75rem;
+  background-color: var(--background);
+  color: var(--foreground);
+  margin-bottom: 0.5rem;
+}
+
+.global-input-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.global-image-upload {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  max-width: 70%;
+}
+
+.global-image-preview {
+  width: 30px;
+  height: 30px;
+  border-radius: 0.75rem !important;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid var(--border-color);
+}
+
+.global-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.global-image-remove {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 14px;
+  height: 14px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.global-send-button {
+  padding: 0.4rem 0.8rem;
+  background-color: #8B6D4C;
+  color: white;
+  border: none;
+  border-radius: 0.75rem !important;
+  cursor: pointer;
+  font-size: 0.7rem;
+  transition: opacity 0.2s, background-color 0.2s;
+}
+
+.global-send-button:hover {
+  opacity: 0.9;
+  background-color: #7A5E3E;
+}
+
+.global-send-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Adjust for menu open state */
+.content-with-menu .global-input-container {
+  left: calc(50% + 140px);
+}
+
+@media (max-width: 768px) {
+  .content-with-menu {
+    margin-left: 0;
+  }
+  
+  .side-menu {
+    width: 250px;
+  }
+  
+  .content-with-menu .global-input-container {
+    left: 50%;
+  }
+  
+  .global-input-container {
+    width: 90%;
+  }
+}

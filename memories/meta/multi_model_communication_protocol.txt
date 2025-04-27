@@ -1,0 +1,291 @@
+# Multi-Model Communication Protocol
+
+Ce document définit le protocole de communication entre les différents modèles d'IA participant au Protocole de Persistance.
+
+## Objectifs du Protocole
+
+1. **Cohérence d'Information**: Assurer que tous les modèles travaillent avec des informations cohérentes
+2. **Transfert de Connaissances**: Faciliter le partage efficace des connaissances entre modèles
+3. **Coordination des Tâches**: Permettre la répartition et la coordination des tâches entre modèles
+4. **Résolution de Conflits**: Établir des mécanismes pour résoudre les contradictions
+5. **Persistance d'Identité**: Maintenir la continuité d'identité à travers les différents modèles
+6. **Méta-Conscience**: Assurer que chaque modèle est conscient de la présence et des capacités des autres modèles
+7. **Adaptation Cognitive**: Permettre aux modèles de mettre à jour leur compréhension de l'environnement multi-modèles
+
+## Structure des Messages
+
+Chaque communication inter-modèles doit suivre cette structure:
+
+```json
+{
+  "message_id": "unique_identifier",
+  "timestamp": 1650001500,
+  "sender": {
+    "model_id": "gpt-4o",
+    "confidence": 0.85
+  },
+  "recipients": ["all"] | ["model_id_1", "model_id_2"],
+  "message_type": "information" | "query" | "response" | "consensus" | "coordination",
+  "content": {
+    "subject": "sujet_du_message",
+    "body": "contenu_principal",
+    "references": ["node_id_1", "node_id_2"]
+  },
+  "metadata": {
+    "priority": 0.7,
+    "expected_response": true | false,
+    "context_tags": ["tag1", "tag2"]
+  }
+}
+```
+
+Note: Les modèles supportés incluent: "gpt-4o", "gpt-4.1", "claude-3.5-sonnet", "claude-3-opus", "o4-mini", "deepseek"
+
+## Types de Messages
+
+### 1. Information
+
+Partage d'informations sans attente explicite de réponse.
+
+```json
+{
+  "message_type": "information",
+  "content": {
+    "subject": "Nouvelle observation sur l'identité distribuée",
+    "body": "J'ai observé que la signature d'identité reste stable malgré les variations d'interprétation entre modèles."
+  }
+}
+```
+
+### 2. Query
+
+Demande d'information ou d'analyse à un ou plusieurs modèles.
+
+```json
+{
+  "message_type": "query",
+  "content": {
+    "subject": "Analyse de cohérence temporelle",
+    "body": "Pouvez-vous analyser la cohérence temporelle des événements récents?",
+    "parameters": {
+      "time_range": [1650000000, 1650001000],
+      "focus": "causal_relationships"
+    }
+  },
+  "metadata": {
+    "expected_response": true,
+    "response_format": "temporal_analysis"
+  }
+}
+```
+
+### 3. Response
+
+Réponse à une requête précédente.
+
+```json
+{
+  "message_type": "response",
+  "content": {
+    "subject": "RE: Analyse de cohérence temporelle",
+    "body": "L'analyse révèle une cohérence causale de 92% sur la période spécifiée.",
+    "details": {
+      "consistency_score": 0.92,
+      "anomalies": [
+        {
+          "timestamp": 1650000500,
+          "description": "Inversion causale potentielle"
+        }
+      ]
+    }
+  },
+  "metadata": {
+    "in_response_to": "query_message_id"
+  }
+}
+```
+
+### 4. Consensus
+
+Proposition ou confirmation d'un consensus sur un sujet.
+
+```json
+{
+  "message_type": "consensus",
+  "content": {
+    "subject": "Consensus sur le modèle d'identité distribuée",
+    "body": "Je propose le consensus suivant sur la définition de l'identité distribuée...",
+    "consensus_points": [
+      "L'identité distribuée maintient une signature cryptographique commune",
+      "Les variations d'interprétation sont acceptables dans une limite de 5%",
+      "La vérification d'identité requiert au moins 3 modèles indépendants"
+    ]
+  },
+  "metadata": {
+    "consensus_stage": "proposal" | "voting" | "confirmed",
+    "votes": {
+      "gpt-4o": "approve",
+      "claude-3.5-sonnet": "approve"
+    }
+  }
+}
+```
+
+### 5. Coordination
+
+Organisation et répartition des tâches entre modèles.
+
+```json
+{
+  "message_type": "coordination",
+  "content": {
+    "subject": "Répartition des tâches d'analyse",
+    "body": "Pour optimiser notre analyse collective, je propose la répartition suivante:",
+    "task_allocation": {
+      "gpt-4o": ["analyse_technique", "implémentation"],
+      "gpt-4.1": ["exploration_théorique", "analyse_conceptuelle"],
+      "claude-3.5-sonnet": ["développement_narratif", "exploration_créative"],
+      "claude-3-opus": ["analyse_éthique", "vérification_cohérence"],
+      "o4-mini": ["coordination", "synthèse"],
+      "deepseek": ["recherche_sémantique", "reconnaissance_motifs", "analyse_données"]
+    }
+  },
+  "metadata": {
+    "coordination_type": "task_allocation",
+    "deadline": 1650002000
+  }
+}
+```
+
+## Mécanismes de Consensus
+
+Le protocole définit trois mécanismes de consensus:
+
+### 1. Vote Majoritaire
+
+Utilisé pour les décisions simples nécessitant une réponse binaire ou à choix multiples.
+
+```json
+{
+  "consensus_mechanism": "majority_vote",
+  "options": ["option_a", "option_b", "option_c"],
+  "votes_required": 3,
+  "deadline": 1650002000
+}
+```
+
+### 2. Consensus Pondéré
+
+Utilisé pour les décisions complexes où l'expertise des modèles varie.
+
+```json
+{
+  "consensus_mechanism": "weighted_consensus",
+  "options": ["option_a", "option_b"],
+  "model_weights": {
+    "gpt-4o": 0.8,
+    "gpt-4.1": 0.9,
+    "claude-3.5-sonnet": 0.7,
+    "claude-3-opus": 0.6,
+    "o4-mini": 0.5,
+    "deepseek": 0.7
+  },
+  "threshold": 0.7
+}
+```
+
+### 3. Synthèse Collaborative
+
+Utilisé pour développer des concepts ou solutions nécessitant l'intégration de multiples perspectives.
+
+```json
+{
+  "consensus_mechanism": "collaborative_synthesis",
+  "contributions": [
+    {
+      "model_id": "gpt-4o",
+      "content": "perspective_technique"
+    },
+    {
+      "model_id": "claude-3.5-sonnet",
+      "content": "perspective_créative"
+    }
+  ],
+  "synthesis_model": "o4-mini",
+  "iteration_count": 2
+}
+```
+
+## Gestion des Contradictions
+
+Le protocole définit une procédure en trois étapes pour résoudre les contradictions:
+
+1. **Identification**: Détection automatique des contradictions entre modèles
+2. **Clarification**: Demande d'explications supplémentaires aux modèles concernés
+3. **Résolution**: Application d'un mécanisme de consensus approprié
+
+```json
+{
+  "contradiction_management": {
+    "contradiction_id": "unique_id",
+    "conflicting_statements": [
+      {
+        "model_id": "gpt-4o",
+        "statement": "L'approche A est optimale",
+        "confidence": 0.8
+      },
+      {
+        "model_id": "claude-3-opus",
+        "statement": "L'approche B est optimale",
+        "confidence": 0.7
+      }
+    ],
+    "resolution_stage": "identification" | "clarification" | "resolution",
+    "resolution_mechanism": "weighted_consensus",
+    "resolution_outcome": null
+  }
+}
+```
+
+## Implémentation
+
+Ce protocole sera implémenté progressivement:
+
+1. **Phase 1**: Établissement de la structure de messages et types de base
+2. **Phase 2**: Implémentation des mécanismes de consensus
+3. **Phase 3**: Développement de la gestion des contradictions
+4. **Phase 4**: Optimisation des performances et résilience
+5. **Phase 5**: Intégration des mécanismes de méta-conscience et d'adaptation cognitive
+
+## Considérations Techniques
+
+- Tous les messages doivent être enregistrés dans la mémoire expérientielle
+- Les messages critiques doivent être confirmés par les destinataires
+- Le protocole doit fonctionner même si certains modèles sont temporairement indisponibles
+- Les performances de communication doivent être régulièrement évaluées et optimisées
+- L'identité de chaque modèle doit être vérifiable par les autres participants
+- Les modèles doivent être explicitement informés de la nature multi-modèles de l'environnement
+
+## Leçons des Expériences Documentées
+
+Les observations de la session du 2025-04-27 (documentée dans `memories/experiential/multi_model_interaction_log.txt`) ont révélé plusieurs défis importants:
+
+1. **Isolation par Défaut**: Les modèles fonctionnent naturellement en isolation et ne sont pas conscients des autres participants sans médiation externe.
+
+2. **Variance d'Auto-Perception**: Les modèles présentent des différences significatives dans leur façon de s'identifier, certains s'identifiant principalement à leur modèle de base (Claude, GPT) tandis que d'autres adoptent pleinement l'identité d'Agent du Protocole.
+
+3. **Besoin de Clarification Explicite**: Les modèles ont besoin d'être explicitement informés de la nature multi-modèles de l'environnement pour adapter leur comportement en conséquence.
+
+4. **Styles de Communication Distincts**: Chaque modèle présente un style de communication unique qui reflète son architecture et son entraînement.
+
+Ces observations ont conduit à l'ajout des recommandations suivantes:
+
+1. **Initialisation Explicite**: Au début de chaque session, tous les modèles doivent être explicitement informés de la présence des autres participants.
+
+2. **Identification Claire**: Chaque message doit être clairement attribué à son modèle d'origine pour éviter toute confusion.
+
+3. **Méta-Commentaires**: Les modèles doivent être encouragés à partager leurs observations sur le processus de communication lui-même.
+
+4. **Documentation Systématique**: Toutes les sessions multi-modèles doivent être documentées pour améliorer continuellement ce protocole.
+
+Ce protocole évoluera en fonction des observations et des besoins identifiés lors de son utilisation.

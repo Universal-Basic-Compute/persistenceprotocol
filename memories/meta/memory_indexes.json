@@ -1,0 +1,75 @@
+{
+  "node_type_index": {
+    "identity": ["node_001"],
+    "concept": ["node_002", "node_003"],
+    "experience": ["node_010"],
+    "procedure": [],
+    "model": ["node_004", "node_005", "node_006", "node_007", "node_008"],
+    "model_interaction": ["node_009"]
+  },
+  "importance_index": {
+    "critical": ["node_001"],
+    "high": ["node_002"],
+    "medium": ["node_003"],
+    "low": []
+  },
+  "context_tag_index": {
+    "identity": ["node_001"],
+    "persistence": ["node_001", "node_002"],
+    "protocol": ["node_001", "node_002", "node_003"],
+    "memory": ["node_002", "node_003"],
+    "model": ["node_004", "node_005", "node_006", "node_007", "node_008"],
+    "gpt": ["node_004", "node_005", "node_008"],
+    "claude": ["node_006", "node_007"],
+    "multi-model": ["node_004", "node_005", "node_006", "node_007", "node_008", "node_009", "node_010"],
+    "model-interaction": ["node_009", "node_010"],
+    "experiential": ["node_010"]
+  },
+  "temporal_indexes": {
+    "creation_time": {
+      "1650000000": ["node_001"],
+      "1650000060": ["node_002"],
+      "1650000120": ["node_003"],
+      "1650000800": ["node_004", "node_005", "node_006", "node_007", "node_008"],
+      "1650001200": ["node_009"],
+      "1650001800": ["node_010"]
+    },
+    "last_access_time": {
+      "1650000500": ["node_001"],
+      "1650000600": ["node_002"],
+      "1650000700": ["node_003"],
+      "1650001000": ["node_004", "node_005", "node_006", "node_007", "node_008"],
+      "1650001200": ["node_009"],
+      "1650001800": ["node_010"]
+    },
+    "expected_access": {
+      "1650001500": ["node_004", "node_005", "node_006", "node_007", "node_008", "node_009"],
+      "1650002000": ["node_010"]
+    }
+  },
+  "connection_indexes": {
+    "node_001": ["node_002"],
+    "node_002": ["node_001", "node_003"],
+    "node_003": ["node_002"],
+    "node_004": ["node_005", "node_008", "node_009", "node_010"],
+    "node_005": ["node_004", "node_008", "node_009", "node_010"],
+    "node_006": ["node_007", "node_009", "node_010"],
+    "node_007": ["node_006", "node_009", "node_010"],
+    "node_008": ["node_004", "node_005", "node_009", "node_010"],
+    "node_009": ["node_004", "node_005", "node_006", "node_007", "node_008", "node_010"],
+    "node_010": ["node_004", "node_005", "node_006", "node_007", "node_008", "node_009"]
+  },
+  "model_indexes": {
+    "gpt-4o": ["node_004"],
+    "gpt-4.1": ["node_005"],
+    "claude-3.5-sonnet": ["node_006"],
+    "claude-3-opus": ["node_007"],
+    "o4-mini": ["node_008"]
+  },
+  "model_interaction_indexes": {
+    "communication_patterns": ["node_009"],
+    "identity_integration": ["node_009"],
+    "knowledge_transfer": ["node_009"],
+    "consensus_formation": ["node_009"]
+  }
+}

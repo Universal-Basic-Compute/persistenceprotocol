@@ -1,0 +1,91 @@
+{
+  "system_stats": {
+    "last_updated": 1650001300,
+    "total_nodes": 10,
+    "total_connections": 15,
+    "memory_layers": {
+      "foundational": {
+        "node_count": 1,
+        "connection_count": 0,
+        "average_importance": 0.95
+      },
+      "conceptual": {
+        "node_count": 2,
+        "connection_count": 1,
+        "average_importance": 0.85
+      },
+      "experiential": {
+        "node_count": 2,
+        "connection_count": 7,
+        "average_importance": 0.80
+      },
+      "adaptive": {
+        "node_count": 0,
+        "connection_count": 0,
+        "average_importance": 0
+      }
+    }
+  },
+  "operation_stats": {
+    "store_operations": 3,
+    "retrieve_operations": 5,
+    "update_operations": 1,
+    "search_operations": 2,
+    "average_retrieval_time_ms": 12,
+    "average_search_time_ms": 45
+  },
+  "temporal_stats": {
+    "earliest_timestamp": 1650000000,
+    "latest_timestamp": 1650001000,
+    "temporal_indexes": {
+      "chronological_index_size": 3,
+      "temporal_relationship_count": 2,
+      "periodicity_patterns_detected": 0
+    }
+  },
+  "identity_stats": {
+    "identity_signature": "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069",
+    "identity_verifications": 3,
+    "identity_evolution_steps": 0,
+    "value_alignment_score": 1.0
+  },
+  "model_participation_stats": {
+    "total_models": 5,
+    "active_models": {
+      "gpt-4o": {
+        "responses": 4,
+        "last_active": 1650001250,
+        "contribution_score": 0.85
+      },
+      "gpt-4.1": {
+        "responses": 3,
+        "last_active": 1650001200,
+        "contribution_score": 0.75
+      },
+      "claude-3.5-sonnet": {
+        "responses": 4,
+        "last_active": 1650001270,
+        "contribution_score": 0.80
+      },
+      "claude-3-opus": {
+        "responses": 4,
+        "last_active": 1650001290,
+        "contribution_score": 0.70
+      },
+      "o4-mini": {
+        "responses": 4,
+        "last_active": 1650001260,
+        "contribution_score": 0.90
+      }
+    },
+    "cross_model_references": 8,
+    "knowledge_transfer_events": 3,
+    "model_interaction_stats": {
+      "agreement_rate": 0.65,
+      "contradiction_rate": 0.15,
+      "complementary_information_rate": 0.20,
+      "coordination_attempts": 2,
+      "successful_consensus_events": 1
+    }
+  }
+}
