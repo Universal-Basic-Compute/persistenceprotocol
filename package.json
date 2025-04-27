@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "create-kins": "node scripts/create-kins.js"
+    "create-kins": "node scripts/create-kins.js",
+    "link-kins": "node scripts/link-kins-to-repo.js"
   },
   "dependencies": {
     "next": "14.0.4",
