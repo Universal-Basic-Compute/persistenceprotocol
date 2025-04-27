@@ -112,7 +112,10 @@ const ChatGrid: React.FC<ChatGridProps> = ({
                   <p className="text-xs">Thinking...</p>
                 </div>
               )}
-              <div ref={el => messagesEndRefs.current[model.id] = el} />
+              <div ref={(el) => {
+                messagesEndRefs.current[model.id] = el;
+                return null;
+              }} />
             </div>
             
             <ChatInput 
