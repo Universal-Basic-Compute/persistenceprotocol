@@ -2,8 +2,13 @@
  * Configuration for API endpoints and deployment settings
  */
 
+// Determine if we're in development or production
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 // API endpoints
-export const API_BASE_URL = 'https://api.kinos-engine.ai/v2';
+export const API_BASE_URL = isDevelopment 
+  ? 'http://localhost:5000/v2' 
+  : 'https://api.kinos-engine.ai/v2';
 export const BLUEPRINT_ID = 'persistenceprotocol';
 
 // Vercel-specific configuration
