@@ -80,19 +80,22 @@ body {
 .message {
   margin-bottom: 1rem;
   padding: 0.75rem;
-  border-radius: 0.25rem;
+  border-radius: 1rem !important;
   max-width: 80%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .user-message {
   background-color: var(--chat-user-bg);
   margin-left: auto;
+  border-top-right-radius: 0.25rem !important;
 }
 
 .system-message {
   background-color: var(--chat-system-bg);
   border: 1px solid var(--border-color);
   margin-right: auto;
+  border-top-left-radius: 0.25rem !important;
 }
 
 /* Make messages smaller in grid view */
@@ -107,7 +110,7 @@ body {
 .input-container {
   display: flex;
   border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
+  border-radius: 1rem !important;
   overflow: hidden;
   margin-bottom: 1rem;
   align-items: stretch;
@@ -193,6 +196,9 @@ body {
   overflow-y: auto;
   transition: transform 0.3s ease;
   z-index: 50;
+  border-top-right-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+  box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
 }
 
 .side-menu-hidden {
@@ -207,14 +213,15 @@ body {
   background-color: #3C4043; /* soft-charcoal */
   color: #F8F7F4; /* cream */
   border: none;
-  border-radius: 50%;
+  border-radius: 1rem !important;
   width: 40px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.04); /* soft shadow */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
 }
 
 .menu-toggle:hover {
@@ -261,7 +268,7 @@ body {
   bottom: 0;
   background-color: #333;
   transition: .4s;
-  border-radius: 24px;
+  border-radius: 9999px !important;
 }
 
 .toggle-slider:before {
@@ -427,7 +434,7 @@ input:checked + .toggle-slider:before {
   opacity: 0.7;
   transition: all 0.2s;
   padding: 0.15rem 0.4rem;
-  border-radius: 0.25rem;
+  border-radius: 0.75rem !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -495,8 +502,8 @@ input:checked + .toggle-slider:before {
   right: 10px;
   background-color: var(--background);
   border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 1rem !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   z-index: 10;
   min-width: 150px;
   overflow: hidden;
@@ -808,11 +815,35 @@ input:checked + .toggle-slider:before {
   min-height: 500px;
   display: flex;
   flex-direction: column;
+  border-radius: 1rem !important;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chat-grid-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
 }
 
 /* Make sure the grid gap is consistent */
 .gap-4 {
   gap: 1rem;
+}
+
+/* Add subtle transitions for interactive elements */
+button, 
+.toggle-switch, 
+.chat-menu-item,
+.global-input-toggle {
+  transition: all 0.2s ease;
+}
+
+/* Add subtle hover effects */
+button:hover:not(:disabled),
+.chat-menu-item:hover,
+.global-input-toggle:hover {
+  transform: translateY(-1px);
 }
 
 /* Responsive adjustments */
@@ -827,8 +858,8 @@ input:checked + .toggle-slider:before {
   z-index: 40;
   background-color: var(--background);
   border: 1px solid var(--border-color);
-  border-radius: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 1.5rem !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
   padding: 0.75rem;
   display: flex;
   flex-direction: column;
@@ -885,7 +916,7 @@ input:checked + .toggle-slider:before {
   min-height: 60px;
   padding: 0.5rem;
   border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
+  border-radius: 1rem !important;
   resize: none;
   font-size: 0.75rem;
   background-color: var(--background);
@@ -910,7 +941,7 @@ input:checked + .toggle-slider:before {
 .global-image-preview {
   width: 30px;
   height: 30px;
-  border-radius: 4px;
+  border-radius: 0.75rem !important;
   overflow: hidden;
   position: relative;
   border: 1px solid var(--border-color);
@@ -944,7 +975,7 @@ input:checked + .toggle-slider:before {
   background-color: var(--foreground);
   color: var(--background);
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem !important;
   cursor: pointer;
   font-size: 0.7rem;
   transition: opacity 0.2s;

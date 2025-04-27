@@ -32,11 +32,14 @@ module.exports = {
       boxShadow: {
         'soft': '0 2px 15px rgba(0, 0, 0, 0.04)',
         'medium': '0 4px 20px rgba(0, 0, 0, 0.06)',
+        'elevated': '0 8px 30px rgba(0, 0, 0, 0.08)',
       },
       borderRadius: {
         'xl': '0.75rem',
         '2xl': '1rem',
         '3xl': '1.5rem',
+        '4xl': '2rem',
+        'pill': '9999px',
       },
     },
   },
