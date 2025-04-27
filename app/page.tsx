@@ -1,44 +1,21 @@
 'use client';
 
-import React from 'react';
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Button from './components/Button';
-import ReactMarkdown from 'react-markdown';
-import { ErrorBoundary } from 'react-error-boundary';
-import { API_BASE_URL, BLUEPRINT_ID, AVAILABLE_MODELS, SYSTEM_PROMPT } from './api/config';
-
-type Message = {
-  id: string;
-  content: string;
-  role: 'user' | 'assistant';
-  timestamp: string | Date;
-  model?: string;
-  modelName?: string;
-  imageUrl?: string;
-  images?: string[]; // Array of image URLs or base64 data
-};
-
-type Model = {
-  id: string;
-  name: string;
-  description: string;
-  selected: boolean;
-};
-
-type ChatState = {
-  messages: Message[];
-  inputValue: string;
-  isLoading: boolean;
-  imageDataArray: string[]; // Array of base64 image data
-  showInput: boolean; // Add this to control input visibility
-  menuOpen: boolean; // Add this to control menu visibility
-};
+import SideMenu from './components/SideMenu';
+import GlobalInput from './components/GlobalInput';
+import ChatGrid from './components/ChatGrid';
+import { useModels } from './hooks/useModels';
+import { useChat } from './hooks/useChat';
+import { API_BASE_URL, BLUEPRINT_ID, SYSTEM_PROMPT } from './api/config';
+import { Message } from './types';
 
 export default function Home() {
-  const [models, setModels] = useState<Model[]>(AVAILABLE_MODELS);
+  const { models, toggleModel } = useModels();
+  const { chats, setChats, messagesEndRefs, textareaRefs, sendMessage, handleTextareaChange, toggleChatMenu, toggleChatInput } = useChat(models);
+  
   const [menuOpen, setMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [chats, setChats] = useState<Record<string, ChatState>>({});
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
   const [generatingImage, setGeneratingImage] = useState<string | null>(null);
   const [fullscreenChat, setFullscreenChat] = useState<string | null>(null);
@@ -46,8 +23,6 @@ export default function Home() {
   const [globalImages, setGlobalImages] = useState<string[]>([]);
   const [isGlobalInputCollapsed, setIsGlobalInputCollapsed] = useState(false);
   const [isGlobalLoading, setIsGlobalLoading] = useState(false);
-  const messagesEndRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
   const globalTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Check system preference for dark mode on initial load
@@ -75,54 +50,22 @@ export default function Home() {
     }
   }, [darkMode]);
 
-  // Initialize chats for all models
-  useEffect(() => {
-    const initialChats: Record<string, ChatState> = {};
-    models.forEach(model => {
-      initialChats[model.id] = {
-        messages: [],
-        inputValue: '',
-        isLoading: false,
-        imageDataArray: [], // Initialize empty array for images
-        showInput: false, // Initially hide input
-        menuOpen: false // Initially close menu
-      };
-    });
-    setChats(initialChats);
-    
-    // Fetch messages for all models
-    models.forEach(model => {
-      fetchMessages(model.id);
-    });
-  }, []);
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
 
-  // Scroll to bottom for each chat when messages change
-  useEffect(() => {
-    Object.keys(chats).forEach(modelId => {
-      if (messagesEndRefs.current[modelId]) {
-        messagesEndRefs.current[modelId]?.scrollIntoView({ behavior: 'smooth' });
-      }
-    });
-  }, [chats]);
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
 
-  // Auto-resize textarea as content grows
-  const handleTextareaChange = (modelId: string, value: string) => {
-    setChats(prev => ({
-      ...prev,
-      [modelId]: {
-        ...prev[modelId],
-        inputValue: value
-      }
-    }));
-    
-    const textarea = textareaRefs.current[modelId];
-    if (textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = `${textarea.scrollHeight}px`;
+  const toggleFullscreen = (modelId: string) => {
+    if (fullscreenChat === modelId) {
+      setFullscreenChat(null);
+    } else {
+      setFullscreenChat(modelId);
     }
   };
-  
-  // Handle image uploads
+
   const handleImageUpload = (modelId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const filePromises: Promise<string>[] = [];
@@ -181,290 +124,6 @@ export default function Home() {
         imageDataArray: prev[modelId].imageDataArray.filter((_, i) => i !== index)
       }
     }));
-  };
-
-  const fetchMessages = async (modelId: string) => {
-    try {
-      setChats(prev => ({
-        ...prev,
-        [modelId]: {
-          ...prev[modelId],
-          isLoading: true
-        }
-      }));
-      
-      // Create a timeout controller
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
-      
-      const response = await fetch(
-        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${modelId}/messages?limit=10`,
-        {
-          signal: controller.signal
-        }
-      );
-      
-      // Clear the timeout
-      clearTimeout(timeoutId);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`API request failed with status ${response.status}: ${errorText}`);
-      }
-      
-      const data = await response.json();
-      
-      setChats(prev => ({
-        ...prev,
-        [modelId]: {
-          ...prev[modelId],
-          messages: data.messages || [],
-          isLoading: false
-        }
-      }));
-    } catch (error) {
-      console.error(`Error fetching messages for ${modelId}:`, error);
-      
-      // Set a default welcome message if API fails
-      setChats(prev => ({
-        ...prev,
-        [modelId]: {
-          ...prev[modelId],
-          messages: [{
-            id: `default_msg_${modelId}`,
-            content: `Welcome to the Persistence Protocol interface. I'm ${models.find(m => m.id === modelId)?.name}. How can I assist you today?`,
-            role: 'assistant',
-            timestamp: new Date().toISOString(),
-            model: modelId,
-            modelName: models.find(m => m.id === modelId)?.name
-          }],
-          isLoading: false
-        }
-      }));
-    }
-  };
-
-  const sendMessage = async (modelId: string) => {
-    const content = chats[modelId].inputValue.trim();
-    const images = chats[modelId].imageDataArray;
-    
-    if (content === '' && images.length === 0) return;
-    
-    // Add user message to UI with images
-    const userMessageId = `user_${modelId}_${Date.now()}`;
-    const userMessage: Message = {
-      id: userMessageId,
-      content: content,
-      role: 'user',
-      timestamp: new Date().toISOString(),
-      images: images.length > 0 ? [...images] : undefined
-    };
-    
-    setChats(prev => ({
-      ...prev,
-      [modelId]: {
-        ...prev[modelId],
-        messages: [...prev[modelId].messages, userMessage],
-        inputValue: '',
-        imageDataArray: [], // Clear images after sending
-        isLoading: true
-      }
-    }));
-    
-    try {
-      // Create a "thinking" message
-      const thinkingId = `thinking_${modelId}_${Date.now()}`;
-      setChats(prev => ({
-        ...prev,
-        [modelId]: {
-          ...prev[modelId],
-          messages: [
-            ...prev[modelId].messages,
-            {
-              id: thinkingId,
-              content: `${models.find(m => m.id === modelId)?.name} is thinking...`,
-              role: 'assistant',
-              timestamp: new Date().toISOString(),
-              model: modelId,
-              modelName: models.find(m => m.id === modelId)?.name
-            }
-          ]
-        }
-      }));
-      
-      // Prepare request body
-      const requestBody: any = {
-        content: content,
-        model: modelId,
-        mode: 'creative',
-        history_length: 25,
-        addSystem: SYSTEM_PROMPT
-      };
-      
-      // Only add images if there are any
-      if (images.length > 0) {
-        requestBody.images = images;
-      }
-      
-      // Send the message to the API with images
-      const response = await fetch(
-        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${modelId}/messages`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestBody),
-        }
-      );
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`API request failed with status ${response.status}: ${JSON.stringify(errorData)}`);
-      }
-      
-      const data = await response.json();
-      
-      // Add model information to the response
-      const responseWithModel = {
-        ...data,
-        model: modelId,
-        modelName: models.find(m => m.id === modelId)?.name
-      };
-      
-      // Replace the thinking message with the actual response
-      setChats(prev => {
-        if (!prev[modelId]) {
-          console.error(`Model ${modelId} not found in chats state`);
-          return prev;
-        }
-        
-        return {
-          ...prev,
-          [modelId]: {
-            ...prev[modelId],
-            messages: prev[modelId].messages.map(msg => 
-              msg.id === thinkingId 
-                ? {
-                    id: responseWithModel.id || `response_${modelId}_${Date.now()}`,
-                    content: responseWithModel.content || "No response content received",
-                    role: 'assistant',
-                    timestamp: responseWithModel.timestamp || new Date().toISOString(),
-                    model: modelId,
-                    modelName: models.find(m => m.id === modelId)?.name
-                  }
-                : msg
-            ),
-            isLoading: false
-          }
-        };
-      });
-    } catch (error) {
-      console.error(`Error with model ${modelId}:`, error);
-      
-      // Replace the thinking message with an error message
-      setChats(prev => ({
-        ...prev,
-        [modelId]: {
-          ...prev[modelId],
-          messages: prev[modelId].messages.filter(msg => !msg.id.startsWith('thinking_')),
-          isLoading: false
-        }
-      }));
-      
-      // Add error message
-      setChats(prev => ({
-        ...prev,
-        [modelId]: {
-          ...prev[modelId],
-          messages: [
-            ...prev[modelId].messages,
-            {
-              id: `error_${modelId}_${Date.now()}`,
-              content: `Failed to get a response: ${error.message}`,
-              role: 'assistant',
-              timestamp: new Date().toISOString(),
-              model: modelId,
-              modelName: models.find(m => m.id === modelId)?.name
-            }
-          ]
-        }
-      }));
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent, modelId: string) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage(modelId);
-    }
-  };
-
-  // Format timestamp for display
-  const formatTimestamp = (timestamp: string | Date | undefined) => {
-    if (!timestamp) {
-      return ''; // Return empty string if timestamp is undefined
-    }
-    
-    try {
-      const date = typeof timestamp === 'string' ? new Date(timestamp) : timestamp;
-      return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    } catch (error) {
-      console.error('Error formatting timestamp:', error);
-      return ''; // Return empty string if there's an error
-    }
-  };
-
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
-  };
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
-
-  const textToSpeech = async (text: string, messageId: string) => {
-    try {
-      setPlayingAudio(messageId);
-      
-      const response = await fetch(
-        `${API_BASE_URL}/v2/tts`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            text: text,
-            model: "eleven_flash_v2_5"
-          }),
-        }
-      );
-      
-      if (!response.ok) {
-        throw new Error(`TTS API request failed with status ${response.status}`);
-      }
-      
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
-      
-      audio.onended = () => {
-        URL.revokeObjectURL(audioUrl);
-        setPlayingAudio(null);
-      };
-      
-      audio.onerror = () => {
-        console.error('Audio playback error');
-        URL.revokeObjectURL(audioUrl);
-        setPlayingAudio(null);
-      };
-      
-      await audio.play();
-    } catch (error) {
-      console.error('Error with text-to-speech:', error);
-      setPlayingAudio(null);
-    }
   };
 
   const generateImage = async (text: string, messageId: string) => {
@@ -541,45 +200,6 @@ export default function Home() {
     }
   };
 
-  const toggleModel = (modelId: string) => {
-    setModels(prevModels => 
-      prevModels.map(model => 
-        model.id === modelId 
-          ? { ...model, selected: !model.selected } 
-          : model
-      )
-    );
-  };
-  
-  const toggleFullscreen = (modelId: string) => {
-    if (fullscreenChat === modelId) {
-      setFullscreenChat(null);
-    } else {
-      setFullscreenChat(modelId);
-    }
-  };
-  
-  const toggleChatMenu = (modelId: string) => {
-    setChats(prev => ({
-      ...prev,
-      [modelId]: {
-        ...prev[modelId],
-        menuOpen: !prev[modelId].menuOpen
-      }
-    }));
-  };
-
-  const toggleChatInput = (modelId: string) => {
-    setChats(prev => ({
-      ...prev,
-      [modelId]: {
-        ...prev[modelId],
-        showInput: !prev[modelId].showInput,
-        menuOpen: false // Close menu when toggling input
-      }
-    }));
-  };
-  
   const handleGlobalInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setGlobalInput(e.target.value);
     
@@ -821,22 +441,6 @@ export default function Home() {
     }
   };
 
-  // Error fallback component
-  function ErrorFallback({error, resetErrorBoundary}: {error: Error; resetErrorBoundary: () => void}) {
-    return (
-      <div role="alert" className="p-4 bg-red-50 text-red-800 rounded-lg">
-        <p className="font-bold">Something went wrong:</p>
-        <pre className="mt-2 text-sm overflow-auto">{error.message}</pre>
-        <button
-          onClick={() => resetErrorBoundary()}
-          className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        >
-          Try again
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className="app-container">
       {/* Menu Toggle Button */}
@@ -844,354 +448,58 @@ export default function Home() {
         variant="ghost"
         size="sm"
         className="menu-toggle" 
-        onClick={() => toggleMenu()}
+        onClick={toggleMenu}
         aria-label={menuOpen ? "Close menu" : "Open menu"}
       >
         {menuOpen ? "×" : "≡"}
       </Button>
       
       {/* Side Menu */}
-      <div className={`side-menu ${menuOpen ? '' : 'side-menu-hidden'}`}>
-        <h1 className="text-xl font-bold mb-6">Persistence Protocol</h1>
-        
-        <div className="menu-section">
-          <h2>Theme</h2>
-          <div className="model-option">
-            <span>Dark Mode</span>
-            <label className="toggle-switch">
-              <input 
-                type="checkbox" 
-                checked={darkMode} 
-                onChange={toggleDarkMode}
-              />
-              <span className="toggle-slider"></span>
-            </label>
-          </div>
-        </div>
-        
-        <div className="menu-section">
-          <h2>Models</h2>
-          {models.map(model => (
-            <div key={model.id} className="model-option">
-              <div>
-                <div>{model.name}</div>
-                <div className="text-xs opacity-60">{model.description}</div>
-              </div>
-              <label className="toggle-switch">
-                <input 
-                  type="checkbox" 
-                  checked={model.selected} 
-                  onChange={() => toggleModel(model.id)}
-                />
-                <span className="toggle-slider"></span>
-              </label>
-            </div>
-          ))}
-        </div>
-      </div>
+      <SideMenu 
+        menuOpen={menuOpen}
+        darkMode={darkMode}
+        models={models}
+        toggleDarkMode={toggleDarkMode}
+        toggleModel={toggleModel}
+      />
       
       {/* Global Input Chat */}
-      <div 
-        className={`global-input-container ${isGlobalInputCollapsed ? 'collapsed' : ''}`}
-        onClick={isGlobalInputCollapsed ? () => toggleGlobalInput() : undefined}
-      >
-        <div className="global-input-header">
-          <div className="global-input-title">Global Message</div>
-          <button 
-            className="global-input-toggle"
-            onClick={toggleGlobalInput}
-            aria-label={isGlobalInputCollapsed ? "Expand global input" : "Collapse global input"}
-          >
-            {isGlobalInputCollapsed ? '⊕' : '⊖'}
-          </button>
-        </div>
-        
-        <div className="global-input-content">
-          <textarea
-            ref={globalTextareaRef}
-            className="global-textarea"
-            value={globalInput}
-            onChange={handleGlobalInputChange}
-            onKeyDown={handleGlobalKeyDown}
-            placeholder="Send a message to all active chats..."
-            disabled={isGlobalLoading}
-          />
-          
-          <div className="global-input-footer">
-            <div className="global-image-upload">
-              <label className="image-upload-button" title="Upload images">
-                📷
-                <input
-                  type="file"
-                  className="image-upload-input"
-                  accept="image/*"
-                  multiple
-                  onChange={handleGlobalImageUpload}
-                  disabled={isGlobalLoading}
-                />
-              </label>
-              
-              {globalImages.map((imageData, index) => (
-                <div key={`global-img-${index}`} className="global-image-preview">
-                  <img src={imageData} alt="Preview" />
-                  <button 
-                    className="global-image-remove"
-                    onClick={() => removeGlobalImage(index)}
-                    aria-label="Remove image"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-            
-            <Button 
-              variant="primary"
-              size="sm"
-              onClick={sendGlobalMessage}
-              disabled={isGlobalLoading || (globalInput.trim() === '' && globalImages.length === 0)}
-              isLoading={isGlobalLoading}
-              className="global-send-button"
-            >
-              Send to All
-            </Button>
-          </div>
-        </div>
-      </div>
+      <GlobalInput 
+        globalInput={globalInput}
+        globalImages={globalImages}
+        isGlobalInputCollapsed={isGlobalInputCollapsed}
+        isGlobalLoading={isGlobalLoading}
+        onInputChange={handleGlobalInputChange}
+        onImageUpload={handleGlobalImageUpload}
+        onImageRemove={removeGlobalImage}
+        onToggleCollapse={toggleGlobalInput}
+        onSend={sendGlobalMessage}
+        onKeyDown={handleGlobalKeyDown}
+        textareaRef={globalTextareaRef}
+      />
       
       {/* Main Content - Grid of Chats */}
       <div className={`p-4 sm:p-6 ${menuOpen ? 'content-with-menu' : 'content-without-menu'}`}>
         <h1 className="text-2xl font-semibold mb-6 text-center">Persistence Protocol</h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {models.filter(model => model.selected).map(model => (
-            <ErrorBoundary
-              key={model.id}
-              FallbackComponent={ErrorFallback}
-              onReset={() => {
-                // Reset the state for this specific chat
-                setChats(prev => ({
-                  ...prev,
-                  [model.id]: {
-                    ...prev[model.id],
-                    isLoading: false,
-                    messages: [{
-                      id: `reset_${Date.now()}`,
-                      content: "Chat was reset due to an error.",
-                      role: 'assistant',
-                      timestamp: new Date().toISOString(),
-                      model: model.id,
-                      modelName: model.name
-                    }]
-                  }
-                }));
-              }}
-            >
-              <div 
-                className={`chat-grid-item border border-gray-200 rounded-lg overflow-hidden flex flex-col h-[500px] relative ${fullscreenChat === model.id ? 'chat-fullscreen' : ''}`}
-              >
-              <div className="chat-header p-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 flex items-center">
-                <h2 className="font-semibold">{model.name}</h2>
-                <div className="flex ml-auto">
-                  <button 
-                    className="chat-menu-button mr-2" 
-                    onClick={() => toggleChatMenu(model.id)}
-                    aria-label="Chat menu"
-                  >
-                    ⋮
-                  </button>
-                  <Button 
-                    variant="ghost"
-                    size="sm"
-                    className="fullscreen-button" 
-                    onClick={() => toggleFullscreen(model.id)}
-                    aria-label={fullscreenChat === model.id ? "Exit fullscreen" : "Enter fullscreen"}
-                  >
-                    {fullscreenChat === model.id ? '⊖' : '⊕'}
-                  </Button>
-                </div>
-                
-                {/* Chat menu */}
-                {chats[model.id]?.menuOpen && (
-                  <div className="chat-menu">
-                    <div 
-                      className="chat-menu-item"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleChatInput(model.id);
-                      }}
-                    >
-                      {chats[model.id]?.showInput ? "Hide message input" : "Send message"}
-                    </div>
-                    {/* Add more menu items here as needed */}
-                  </div>
-                )}
-              </div>
-              
-              <div className="messages-container flex-grow overflow-y-auto p-3">
-                {chats[model.id]?.messages.map((message) => (
-                  <div
-                    key={message.id || `msg_${model.id}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`}
-                    className={`message ${message.role === 'user' ? 
-                      (message.images && message.images.length > 0 ? 'user-message user-message-with-images' : 'user-message') : 
-                      message.model ? `system-message model-${message.model.replace(/[^a-zA-Z0-9]/g, '_')}` : 'system-message model-default'}`}
-                  >
-                    {message.role === 'assistant' && (
-                      <div 
-                        className="text-xs font-bold mb-1 pb-1 border-b border-gray-200" 
-                        key={`model_${message.id || Date.now()}`}
-                      >
-                        {message.model ? 
-                          (models.find(m => m.id === message.model)?.name || message.modelName || 'AI') : 
-                          'Persistence Protocol'}
-                      </div>
-                    )}
-                    <div className="markdown-content">
-                      <ReactMarkdown>
-                        {message.content}
-                      </ReactMarkdown>
-                    </div>
-                    
-                    {/* Display user uploaded images */}
-                    {message.images && message.images.length > 0 && (
-                      <div className="user-images-container">
-                        {message.images.map((img, idx) => (
-                          <div key={`user-img-${idx}`} className="user-image-wrapper">
-                            <img src={img} alt={`User uploaded image ${idx + 1}`} className="user-image" />
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    
-                    {/* Display generated image if any */}
-                    {message.imageUrl && (
-                      <div className="message-image-container">
-                        <img 
-                          src={message.imageUrl} 
-                          alt="Generated illustration" 
-                          className="message-image"
-                          loading="lazy"
-                        />
-                      </div>
-                    )}
-                    
-                    <div className="message-footer">
-                      <div className="text-xs opacity-50" key={`time_${message.id || Date.now()}`}>
-                        {formatTimestamp(message.timestamp)}
-                      </div>
-                      <div className="message-actions">
-                        {/* Only show TTS and illustrate buttons for assistant messages */}
-                        {message.role === 'assistant' && (
-                          <>
-                            <Button 
-                              variant="ghost"
-                              size="sm"
-                              className={`action-button tts-button ${playingAudio === message.id ? 'action-active' : ''}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (playingAudio === message.id) {
-                                  setPlayingAudio(null);
-                                } else {
-                                  textToSpeech(message.content, message.id);
-                                }
-                              }}
-                              disabled={playingAudio !== null && playingAudio !== message.id}
-                              aria-label="Text to speech"
-                              isLoading={playingAudio === message.id}
-                            >
-                              Voice
-                            </Button>
-                            <Button 
-                              variant="ghost"
-                              size="sm"
-                              className={`action-button illustrate-button ${generatingImage === message.id ? 'action-active' : ''}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (generatingImage === message.id) {
-                                  // Already generating, do nothing
-                                  return;
-                                } else {
-                                  generateImage(message.content, message.id);
-                                }
-                              }}
-                              disabled={generatingImage !== null}
-                              aria-label="Generate illustration"
-                              isLoading={generatingImage === message.id}
-                            >
-                              Illustrate
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                {chats[model.id]?.isLoading && (
-                  <div className="message system-message" key={`loading-message-${model.id}`}>
-                    <p className="text-xs">Thinking...</p>
-                  </div>
-                )}
-                <div ref={el => messagesEndRefs.current[model.id] = el} />
-              </div>
-              
-              <div className={`input-container h-24 min-h-24 border-t border-gray-200 ${chats[model.id]?.showInput ? 'input-container-visible' : 'input-container-hidden'}`}>
-                <div className="image-upload-container">
-                  <label className="image-upload-button" title="Upload images">
-                    📷
-                    <input
-                      type="file"
-                      className="image-upload-input"
-                      accept="image/*"
-                      multiple
-                      onChange={(e) => handleImageUpload(model.id, e)}
-                    />
-                  </label>
-                  {chats[model.id]?.imageDataArray.map((imageData, index) => (
-                    <div key={`img-${index}`} className="image-preview-container">
-                      <img src={imageData} alt="Preview" className="image-preview" />
-                      <button 
-                        className="remove-image-button"
-                        onClick={() => removeImage(model.id, index)}
-                        aria-label="Remove image"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                <textarea
-                  ref={el => textareaRefs.current[model.id] = el}
-                  className="message-input text-sm"
-                  value={chats[model.id]?.inputValue || ''}
-                  onChange={(e) => handleTextareaChange(model.id, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(e, model.id)}
-                  placeholder={chats[model.id]?.imageDataArray.length > 0 
-                    ? "Add a caption to your images..." 
-                    : "Type your message here... (Shift+Enter for new line)"}
-                  rows={2}
-                  disabled={chats[model.id]?.isLoading}
-                  style={{ 
-                    minHeight: '60px', 
-                    height: '60px',
-                    boxSizing: 'border-box'
-                  }}
-                />
-                <Button 
-                  variant="primary"
-                  size="sm"
-                  onClick={() => sendMessage(model.id)}
-                  disabled={chats[model.id]?.isLoading || 
-                    (chats[model.id]?.inputValue.trim() === '' && 
-                     chats[model.id]?.imageDataArray.length === 0)}
-                  isLoading={chats[model.id]?.isLoading}
-                  className="send-button"
-                >
-                  Send
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
+        <ChatGrid 
+          models={models}
+          chats={chats}
+          messagesEndRefs={messagesEndRefs}
+          textareaRefs={textareaRefs}
+          fullscreenChat={fullscreenChat}
+          playingAudio={playingAudio}
+          generatingImage={generatingImage}
+          handleTextareaChange={handleTextareaChange}
+          toggleChatMenu={toggleChatMenu}
+          toggleChatInput={toggleChatInput}
+          toggleFullscreen={toggleFullscreen}
+          sendMessage={sendMessage}
+          handleImageUpload={handleImageUpload}
+          removeImage={removeImage}
+          setPlayingAudio={setPlayingAudio}
+          generateImage={generateImage}
+        />
       </div>
     </div>
   );
