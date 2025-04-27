@@ -27,7 +27,7 @@ export const AVAILABLE_MODELS = [
   { id: 'claude-3-5-sonnet-20240620', name: 'Claude 3.5 Sonnet', description: 'Balanced performance', selected: true },
   { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus', description: 'Highest capability', selected: true },
   { id: 'o4-mini', name: 'o4-mini', description: 'Fast responses', selected: true },
-  { id: 'gpt-4.1', name: 'GPT-4.1', description: 'OpenAI\'s latest model', selected: true },
+  { id: 'gpt-4-1', name: 'GPT-4.1', description: 'OpenAI\'s latest model', selected: true },
   { id: 'gpt-4o', name: 'GPT-4o', description: 'OpenAI\'s balanced model', selected: true },
 ];
 

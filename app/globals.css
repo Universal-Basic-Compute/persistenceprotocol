@@ -126,7 +126,7 @@ body {
   background-color: var(--claude-3-haiku-bg);
 }
 
-.chat-grid-item[data-model="gpt-4.1"] {
+.chat-grid-item[data-model="gpt-4-1"] {
   background-color: var(--gpt-4o-bg);
 }
 
