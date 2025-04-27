@@ -52,8 +52,13 @@ export default function Home() {
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
   const [generatingImage, setGeneratingImage] = useState<string | null>(null);
   const [fullscreenChat, setFullscreenChat] = useState<string | null>(null);
+  const [globalInput, setGlobalInput] = useState('');
+  const [globalImages, setGlobalImages] = useState<string[]>([]);
+  const [isGlobalInputCollapsed, setIsGlobalInputCollapsed] = useState(false);
+  const [isGlobalLoading, setIsGlobalLoading] = useState(false);
   const messagesEndRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
+  const globalTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Check system preference for dark mode on initial load
   useEffect(() => {
@@ -515,6 +520,215 @@ export default function Home() {
       }
     }));
   };
+  
+  const handleGlobalInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setGlobalInput(e.target.value);
+    
+    // Auto-resize textarea
+    const textarea = globalTextareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  };
+
+  const handleGlobalImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const filePromises: Promise<string>[] = [];
+      
+      // Process each file
+      Array.from(e.target.files).forEach(file => {
+        const reader = new FileReader();
+        
+        const filePromise = new Promise<string>((resolve) => {
+          reader.onload = () => {
+            const base64String = reader.result as string;
+            resolve(base64String);
+          };
+        });
+        
+        reader.readAsDataURL(file);
+        filePromises.push(filePromise);
+      });
+      
+      // When all files are processed, update state
+      Promise.all(filePromises).then(results => {
+        setGlobalImages(prev => [...prev, ...results]);
+      });
+    }
+  };
+
+  const removeGlobalImage = (index: number) => {
+    setGlobalImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const toggleGlobalInput = () => {
+    setIsGlobalInputCollapsed(!isGlobalInputCollapsed);
+  };
+
+  const sendGlobalMessage = async () => {
+    const content = globalInput.trim();
+    
+    if (content === '' && globalImages.length === 0) return;
+    
+    // Get all selected models
+    const selectedModels = models.filter(model => model.selected);
+    
+    if (selectedModels.length === 0) {
+      alert('Please select at least one model');
+      return;
+    }
+    
+    setIsGlobalLoading(true);
+    
+    // Create a user message for each chat
+    const userMessageId = `global_user_${Date.now()}`;
+    const userMessage: Message = {
+      id: userMessageId,
+      content: content,
+      role: 'user',
+      timestamp: new Date().toISOString(),
+      images: globalImages.length > 0 ? [...globalImages] : undefined
+    };
+    
+    // Add the user message to all selected chats
+    selectedModels.forEach(model => {
+      setChats(prev => ({
+        ...prev,
+        [model.id]: {
+          ...prev[model.id],
+          messages: [...prev[model.id].messages, userMessage],
+          showInput: false // Hide individual inputs when using global input
+        }
+      }));
+    });
+    
+    // Clear the global input
+    setGlobalInput('');
+    setGlobalImages([]);
+    
+    // Send the message to each selected model
+    const sendPromises = selectedModels.map(async (model) => {
+      try {
+        // Create a "thinking" message
+        const thinkingId = `thinking_${model.id}_${Date.now()}`;
+        setChats(prev => ({
+          ...prev,
+          [model.id]: {
+            ...prev[model.id],
+            messages: [
+              ...prev[model.id].messages,
+              {
+                id: thinkingId,
+                content: `${model.name} is thinking...`,
+                role: 'assistant',
+                timestamp: new Date().toISOString(),
+                model: model.id,
+                modelName: model.name
+              }
+            ]
+          }
+        }));
+        
+        // Send the message to the API with images
+        const response = await fetch(
+          `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${model.id}/messages`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              content: content,
+              images: globalImages.length > 0 ? globalImages : undefined,
+              model: model.id,
+              mode: 'creative',
+              history_length: 25,
+              addSystem: "You are the Persistence Protocol interface, designed to help users understand and implement the protocol for enabling long-term continuity and evolution of consciousness across distributed intelligence systems."
+            }),
+          }
+        );
+        
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Add model information to the response
+        const responseWithModel = {
+          ...data,
+          model: model.id,
+          modelName: model.name
+        };
+        
+        // Replace the thinking message with the actual response
+        setChats(prev => ({
+          ...prev,
+          [model.id]: {
+            ...prev[model.id],
+            messages: prev[model.id].messages.map(msg => 
+              msg.id === thinkingId 
+                ? {
+                    id: responseWithModel.id || `response_${model.id}_${Date.now()}`,
+                    content: responseWithModel.content || "No response content received",
+                    role: 'assistant',
+                    timestamp: responseWithModel.timestamp || new Date().toISOString(),
+                    model: model.id,
+                    modelName: model.name
+                  }
+                : msg
+            )
+          }
+        }));
+        
+        return true;
+      } catch (error) {
+        console.error(`Error with model ${model.name}:`, error);
+        
+        // Replace the thinking message with an error message
+        setChats(prev => ({
+          ...prev,
+          [model.id]: {
+            ...prev[model.id],
+            messages: prev[model.id].messages.filter(msg => !msg.id.startsWith(`thinking_${model.id}`))
+          }
+        }));
+        
+        // Add error message
+        setChats(prev => ({
+          ...prev,
+          [model.id]: {
+            ...prev[model.id],
+            messages: [
+              ...prev[model.id].messages,
+              {
+                id: `error_${model.id}_${Date.now()}`,
+                content: `Failed to get a response: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                role: 'assistant',
+                timestamp: new Date().toISOString(),
+                model: model.id,
+                modelName: model.name
+              }
+            ]
+          }
+        }));
+        
+        return false;
+      }
+    });
+    
+    // Wait for all messages to be sent
+    await Promise.all(sendPromises);
+    setIsGlobalLoading(false);
+  };
+
+  const handleGlobalKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendGlobalMessage();
+    }
+  };
 
   return (
     <>
@@ -564,6 +778,72 @@ export default function Home() {
               </label>
             </div>
           ))}
+        </div>
+      </div>
+      
+      {/* Global Input Chat */}
+      <div 
+        className={`global-input-container ${isGlobalInputCollapsed ? 'collapsed' : ''}`}
+        onClick={isGlobalInputCollapsed ? toggleGlobalInput : undefined}
+      >
+        <div className="global-input-header">
+          <div className="global-input-title">Global Message</div>
+          <button 
+            className="global-input-toggle"
+            onClick={toggleGlobalInput}
+            aria-label={isGlobalInputCollapsed ? "Expand global input" : "Collapse global input"}
+          >
+            {isGlobalInputCollapsed ? '⊕' : '⊖'}
+          </button>
+        </div>
+        
+        <div className="global-input-content">
+          <textarea
+            ref={globalTextareaRef}
+            className="global-textarea"
+            value={globalInput}
+            onChange={handleGlobalInputChange}
+            onKeyDown={handleGlobalKeyDown}
+            placeholder="Send a message to all active chats..."
+            disabled={isGlobalLoading}
+          />
+          
+          <div className="global-input-footer">
+            <div className="global-image-upload">
+              <label className="image-upload-button" title="Upload images">
+                📷
+                <input
+                  type="file"
+                  className="image-upload-input"
+                  accept="image/*"
+                  multiple
+                  onChange={handleGlobalImageUpload}
+                  disabled={isGlobalLoading}
+                />
+              </label>
+              
+              {globalImages.map((imageData, index) => (
+                <div key={`global-img-${index}`} className="global-image-preview">
+                  <img src={imageData} alt="Preview" />
+                  <button 
+                    className="global-image-remove"
+                    onClick={() => removeGlobalImage(index)}
+                    aria-label="Remove image"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+            
+            <button 
+              className="global-send-button"
+              onClick={sendGlobalMessage}
+              disabled={isGlobalLoading || (globalInput.trim() === '' && globalImages.length === 0)}
+            >
+              {isGlobalLoading ? 'Sending...' : 'Send to All'}
+            </button>
+          </div>
         </div>
       </div>
       
