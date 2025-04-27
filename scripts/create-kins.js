@@ -1,14 +1,14 @@
-
-const API_BASE_URL = 'https://api.kinos-engine.ai/v2';
+const API_BASE_URL = 'http://localhost:5000/v2'; // Use localhost for development
 const BLUEPRINT_ID = 'persistenceprotocol';
 
-// Models to create kins for
+// Models to create kins for - update to match app/api/config.ts
 const MODELS = [
-  'claude-3-7-sonnet-latest',
-  'claude-3-5-sonnet-latest',
-  'claude-3-opus-latest',
-  'claude-3-haiku-latest',
-  'gpt-4o'
+  'claude-3-7-sonnet-20240307',
+  'claude-3-5-sonnet-20240620',
+  'claude-3-opus-20240229',
+  'gpt-4o',
+  'gpt-4',
+  'gpt-3.5-turbo'
 ];
 
 async function createKin(modelId) {
