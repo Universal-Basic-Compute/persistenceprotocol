@@ -16,22 +16,22 @@
   --pale-ash: #EAE6DC;
   --birch: #F2EDE4;
   
-  /* Updated model-specific pastel colors - using softer tones */
-  --claude-3-7-sonnet-color: #E6F0FF;  /* very light blue */
-  --claude-3-5-sonnet-color: #E6F5E9;  /* very light sage */
-  --claude-3-opus-color: #FFF5E6;      /* very light peach */
-  --claude-3-haiku-color: #F5E6FF;     /* very light lavender */
-  --gpt-4o-color: #FFE6F5;             /* very light pink */
-  --gpt-4-turbo-color: #F2FFE6;        /* very light lime */
-  --default-model-color: #F5F5F5;      /* very light grey */
+  /* Updated model-specific pastel colors - even softer, less saturated tones */
+  --claude-3-7-sonnet-color: #EEF5FF;  /* very light blue, less saturated */
+  --claude-3-5-sonnet-color: #EEF8F2;  /* very light sage, less saturated */
+  --claude-3-opus-color: #FFF8EE;      /* very light peach, less saturated */
+  --claude-3-haiku-color: #F8EEF8;     /* very light lavender, less saturated */
+  --gpt-4o-color: #FFF0F5;             /* very light pink, less saturated */
+  --gpt-4-turbo-color: #F5F8EE;        /* very light lime, less saturated */
+  --default-model-color: #F8F8F8;      /* very light grey, less saturated */
   
-  /* Chat background colors - slightly lighter than message colors */
-  --claude-3-7-sonnet-bg: #F0F7FF;
-  --claude-3-5-sonnet-bg: #F0FFF7;
-  --claude-3-opus-bg: #FFF7F0;
-  --claude-3-haiku-bg: #F7F0FF;
-  --gpt-4o-bg: #FFF0F7;
-  --gpt-4-turbo-bg: #F7FFF0;
+  /* Chat background colors - slightly lighter than message colors, less saturated */
+  --claude-3-7-sonnet-bg: #F5F9FF;
+  --claude-3-5-sonnet-bg: #F5FFFA;
+  --claude-3-opus-bg: #FFFAF5;
+  --claude-3-haiku-bg: #FAF5FF;
+  --gpt-4o-bg: #FFF5FA;
+  --gpt-4-turbo-bg: #FAFFF5;
 }
 
 @theme inline {
@@ -934,6 +934,117 @@ input:checked + .toggle-slider:before {
   box-shadow: 0 4px 20px rgba(139, 109, 76, 0.08);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   border: none; /* Remove the border */
+  position: relative;
+}
+
+/* Base shape for all chat grid items */
+.chat-grid-item {
+  position: relative;
+  border-radius: 1rem !important;
+  overflow: hidden;
+}
+
+/* Claude 3.7 Sonnet - Rounded corners with a slight wave on top */
+.model-shape-claude_3_7_sonnet_20240307::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: linear-gradient(90deg, var(--claude-3-7-sonnet-color) 0%, var(--claude-3-7-sonnet-color) 20%, transparent 20%, transparent 40%, var(--claude-3-7-sonnet-color) 40%, var(--claude-3-7-sonnet-color) 60%, transparent 60%, transparent 80%, var(--claude-3-7-sonnet-color) 80%, var(--claude-3-7-sonnet-color) 100%);
+  z-index: 1;
+}
+
+/* Claude 3.5 Sonnet - Soft rounded corners with a diagonal accent */
+.model-shape-claude_3_5_sonnet_20240620 {
+  border-radius: 1.5rem 0.5rem 1.5rem 0.5rem !important;
+}
+
+.model-shape-claude_3_5_sonnet_20240620::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 30px;
+  height: 30px;
+  background-color: var(--claude-3-5-sonnet-color);
+  border-radius: 0 0 0 15px;
+  opacity: 0.7;
+  z-index: 1;
+}
+
+/* Claude 3 Opus - Elegant curved shape */
+.model-shape-claude_3_opus_20240229 {
+  border-radius: 2rem 2rem 0.5rem 0.5rem !important;
+}
+
+.model-shape-claude_3_opus_20240229::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: linear-gradient(90deg, transparent 0%, var(--claude-3-opus-color) 50%, transparent 100%);
+  opacity: 0.7;
+  z-index: 1;
+}
+
+/* GPT-4o Mini - Playful asymmetric shape */
+.model-shape-gpt_4o_mini_2025_04_16 {
+  border-radius: 0.5rem 2rem 0.5rem 2rem !important;
+}
+
+.model-shape-gpt_4o_mini_2025_04_16::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 30px;
+  height: 30px;
+  background-color: var(--claude-3-haiku-color);
+  border-radius: 0 15px 0 0;
+  opacity: 0.7;
+  z-index: 1;
+}
+
+/* GPT-4.1 - Sophisticated shape with subtle corner details */
+.model-shape-gpt_4_1_2025_04_14 {
+  border-radius: 0.5rem !important;
+  box-shadow: 0 4px 20px rgba(139, 109, 76, 0.08), inset 0 0 0 1px rgba(255, 240, 245, 0.3);
+}
+
+.model-shape-gpt_4_1_2025_04_14::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 15px;
+  height: 15px;
+  border-top: 3px solid var(--gpt-4o-color);
+  border-left: 3px solid var(--gpt-4o-color);
+  opacity: 0.7;
+  z-index: 1;
+}
+
+.model-shape-gpt_4_1_2025_04_14::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 15px;
+  height: 15px;
+  border-bottom: 3px solid var(--gpt-4o-color);
+  border-right: 3px solid var(--gpt-4o-color);
+  opacity: 0.7;
+  z-index: 1;
+}
+
+/* GPT-3.5 Turbo - Simple but distinctive hexagonal influence */
+.model-shape-gpt_3_5_turbo {
+  border-radius: 1rem !important;
+  clip-path: polygon(5% 0%, 95% 0%, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0% 95%, 0% 5%);
 }
 
 .chat-grid-item:hover {
