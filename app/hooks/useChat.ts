@@ -210,20 +210,28 @@ export function useChat(models: Model[]) {
       }
       
       const data = await response.json();
-      console.log(`Received response for ${modelId}:`, data); // Add this log to see the actual response
+      console.log(`Received response for ${modelId}:`, data); // Add this log to see the actual response structure
       
-      // Check if the response has content
-      if (!data.content && data.status === 'completed') {
-        // If status is completed but no content, use a fallback message
-        data.content = "I've processed your request, but I don't have a specific response to provide at this moment.";
-      } else if (!data.content) {
-        // If no content and not completed, throw an error
-        throw new Error(`Received empty content from API for ${modelId}`);
+      // Check if the response has content in different possible locations
+      let responseContent = "No response content received";
+      if (data.content) {
+        responseContent = data.content;
+      } else if (data.message && data.message.content) {
+        responseContent = data.message.content;
+      } else if (data.response && data.response.content) {
+        responseContent = data.response.content;
+      } else if (typeof data === 'string') {
+        responseContent = data;
+      } else if (data.text) {
+        responseContent = data.text;
+      } else if (data.status === 'completed' || data.status === 'success') {
+        responseContent = "Request processed successfully, but no content was returned.";
       }
       
       // Add model information to the response
       const responseWithModel = {
         ...data,
+        content: responseContent, // Use our extracted content
         model: modelId,
         modelName: models.find(m => m.id === modelId)?.name
       };

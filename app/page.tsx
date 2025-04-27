@@ -358,10 +358,28 @@ export default function Home() {
         }
         
         const data = await response.json();
+        console.log(`Received global response for ${model.id}:`, data);
+        
+        // Check if the response has content in different possible locations
+        let responseContent = "No response content received";
+        if (data.content) {
+          responseContent = data.content;
+        } else if (data.message && data.message.content) {
+          responseContent = data.message.content;
+        } else if (data.response && data.response.content) {
+          responseContent = data.response.content;
+        } else if (typeof data === 'string') {
+          responseContent = data;
+        } else if (data.text) {
+          responseContent = data.text;
+        } else if (data.status === 'completed' || data.status === 'success') {
+          responseContent = "Request processed successfully, but no content was returned.";
+        }
         
         // Add model information to the response
         const responseWithModel = {
           ...data,
+          content: responseContent, // Use our extracted content
           model: model.id,
           modelName: model.name
         };
