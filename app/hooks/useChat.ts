@@ -73,11 +73,18 @@ export function useChat(models: Model[]) {
       
       if (!response.ok) {
         const errorText = await response.text();
+        console.error(`API fetch error for ${modelId}:`, errorText);
         throw new Error(`API request failed with status ${response.status}: ${errorText}`);
       }
       
       const data = await response.json();
-      console.log(`Received ${data.messages?.length || 0} messages for ${modelId}`);
+      console.log(`========== FETCHED MESSAGES FOR ${modelId} ==========`);
+      console.log(`Received ${data.messages?.length || 0} messages`);
+      if (data.messages?.length > 0) {
+        console.log(`First message: ${JSON.stringify(data.messages[0], null, 2)}`);
+        console.log(`Last message: ${JSON.stringify(data.messages[data.messages.length - 1], null, 2)}`);
+      }
+      console.log(`====================================================`);
       
       // Add channel_id to each message
       const messagesWithChannel = (data.messages || []).map((msg: Message) => ({
@@ -217,11 +224,14 @@ export function useChat(models: Model[]) {
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }));
+        console.error(`API error for ${modelId}:`, errorData);
         throw new Error(`API request failed with status ${response.status}: ${JSON.stringify(errorData)}`);
       }
       
       const data = await response.json();
-      console.log(`Received response for ${modelId}:`, data); // Add this log to see the actual response structure
+      console.log(`========== RESPONSE FROM ${modelId} ==========`);
+      console.log(JSON.stringify(data, null, 2));
+      console.log(`==============================================`);
       
       // Check if the response has content in different possible locations
       let responseContent = "No response content received";

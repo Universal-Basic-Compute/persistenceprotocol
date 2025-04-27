@@ -381,11 +381,14 @@ export default function Home() {
         
         if (!response.ok) {
           const errorData = await response.json();
+          console.error(`API error for ${model.id}:`, errorData);
           throw new Error(`API request failed with status ${response.status}: ${JSON.stringify(errorData)}`);
         }
         
         const data = await response.json();
-        console.log(`Received global response for ${model.id}:`, data);
+        console.log(`========== GLOBAL RESPONSE FROM ${model.id} ==========`);
+        console.log(JSON.stringify(data, null, 2));
+        console.log(`====================================================`);
         
         // Check if the response has content in different possible locations
         let responseContent = "No response content received";
