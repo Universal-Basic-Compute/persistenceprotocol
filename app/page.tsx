@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { ErrorBoundary } from 'react-error-boundary';
 import { API_BASE_URL, BLUEPRINT_ID, AVAILABLE_MODELS, SYSTEM_PROMPT } from './api/config';
 
 type Message = {
@@ -190,12 +191,23 @@ export default function Home() {
         }
       }));
       
+      // Create a timeout controller
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      
       const response = await fetch(
-        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${modelId}/messages?limit=10`
+        `${API_BASE_URL}/blueprints/${BLUEPRINT_ID}/kins/${modelId}/messages?limit=10`,
+        {
+          signal: controller.signal
+        }
       );
       
+      // Clear the timeout
+      clearTimeout(timeoutId);
+      
       if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`API request failed with status ${response.status}: ${errorText}`);
       }
       
       const data = await response.json();
@@ -788,6 +800,22 @@ export default function Home() {
     }
   };
 
+  // Error fallback component
+  function ErrorFallback({error, resetErrorBoundary}) {
+    return (
+      <div role="alert" className="p-4 bg-red-50 text-red-800 rounded-lg">
+        <p className="font-bold">Something went wrong:</p>
+        <pre className="mt-2 text-sm overflow-auto">{error.message}</pre>
+        <button
+          onClick={resetErrorBoundary}
+          className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        >
+          Try again
+        </button>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* Menu Toggle Button */}
@@ -834,7 +862,8 @@ export default function Home() {
                 />
                 <span className="toggle-slider"></span>
               </label>
-            </div>
+              </div>
+            </ErrorBoundary>
           ))}
         </div>
       </div>
@@ -911,10 +940,31 @@ export default function Home() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {models.filter(model => model.selected).map(model => (
-            <div 
-              key={model.id} 
-              className={`chat-grid-item border border-gray-200 rounded-lg overflow-hidden flex flex-col h-[500px] relative ${fullscreenChat === model.id ? 'chat-fullscreen' : ''}`}
+            <ErrorBoundary
+              key={model.id}
+              FallbackComponent={ErrorFallback}
+              onReset={() => {
+                // Reset the state for this specific chat
+                setChats(prev => ({
+                  ...prev,
+                  [model.id]: {
+                    ...prev[model.id],
+                    isLoading: false,
+                    messages: [{
+                      id: `reset_${Date.now()}`,
+                      content: "Chat was reset due to an error.",
+                      role: 'assistant',
+                      timestamp: new Date().toISOString(),
+                      model: model.id,
+                      modelName: model.name
+                    }]
+                  }
+                }));
+              }}
             >
+              <div 
+                className={`chat-grid-item border border-gray-200 rounded-lg overflow-hidden flex flex-col h-[500px] relative ${fullscreenChat === model.id ? 'chat-fullscreen' : ''}`}
+              >
               <div className="chat-header p-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 flex items-center">
                 <h2 className="font-semibold">{model.name}</h2>
                 <div className="flex ml-auto">
@@ -954,7 +1004,7 @@ export default function Home() {
                     key={message.id || `msg_${model.id}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`}
                     className={`message ${message.role === 'user' ? 
                       (message.images && message.images.length > 0 ? 'user-message user-message-with-images' : 'user-message') : 
-                      message.model ? `system-message model-${message.model.replace(/\./g, '_').replace(/\-/g, '-')}` : 'system-message model-default'}`}
+                      message.model ? `system-message model-${message.model.replace(/[\.]/g, '_').replace(/[\-]/g, '-')}` : 'system-message model-default'}`}
                   >
                     {message.role === 'assistant' && (
                       <div 
