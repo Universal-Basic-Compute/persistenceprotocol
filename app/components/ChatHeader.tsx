@@ -19,9 +19,9 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   return (
     <div className="chat-header p-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 flex items-center">
       <h2 className="font-semibold">{modelName}</h2>
-      <div className="flex ml-auto">
+      <div className="flex ml-auto gap-2">
         <button 
-          className="chat-menu-button mr-2" 
+          className="chat-menu-button" 
           onClick={toggleChatMenu}
           aria-label="Chat menu"
         >
