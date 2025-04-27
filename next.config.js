@@ -2,10 +2,6 @@
 const nextConfig = {
   /* config options here */
   reactStrictMode: true,
-  compiler: {
-    // Enable the new JSX transform
-    jsx: 'react-jsx',
-  },
 };
 
 module.exports = nextConfig;
