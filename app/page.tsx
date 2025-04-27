@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { API_BASE_URL, BLUEPRINT_ID, AVAILABLE_MODELS, SYSTEM_PROMPT } from '../api/config';
+import { API_BASE_URL, BLUEPRINT_ID, AVAILABLE_MODELS, SYSTEM_PROMPT } from './api/config';
 
 type Message = {
   id: string;
