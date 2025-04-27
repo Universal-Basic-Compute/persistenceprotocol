@@ -76,7 +76,7 @@ async function linkKinToRepo(kinId, retryCount = 0) {
         },
         body: JSON.stringify({
           github_url: repoUrl,
-          // Note: token and username are optional and will use environment variables if available
+          use_local_git: true, // Use local git credentials instead of explicit token
         }),
       }
     );
