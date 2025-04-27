@@ -2,14 +2,14 @@ const API_BASE_URL = 'http://localhost:5000/v2'; // Use localhost for developmen
 const BLUEPRINT_ID = 'persistenceprotocol';
 const GITHUB_REPO_URL = 'https://github.com/Universal-Basic-Compute/persistenceprotocol';
 
-// Models to link kins for - match with app/api/config.ts
-const MODELS = [
-  'claude-3-7-sonnet-latest',
-  'deepseek-chat',
-  'o4-mini',
-  'gpt-4-1',
-  'gpt-4o'
-];
+// Get the kin ID from command line arguments
+const kinId = process.argv[2];
+
+if (!kinId) {
+  console.error('Please provide a kin ID as a command line argument');
+  console.error('Example: node scripts/link-single-kin.js deepseek-chat');
+  process.exit(1);
+}
 
 async function linkKinToRepo(kinId, retryCount = 0) {
   try {
@@ -128,36 +128,22 @@ async function linkKinToRepo(kinId, retryCount = 0) {
   }
 }
 
-async function linkAllKins() {
-  console.log('Starting kin-repository linking process...');
-  console.log(`Target repository: ${GITHUB_REPO_URL}`);
-  
-  const results = [];
-  
-  for (const kinId of MODELS) {
-    const result = await linkKinToRepo(kinId);
-    results.push(result);
-    
-    // Add a longer delay between requests to avoid rate limiting
-    if (MODELS.indexOf(kinId) < MODELS.length - 1) {
-      console.log('Waiting 5 seconds before next request...');
-      await new Promise(resolve => setTimeout(resolve, 5000));
-    }
-  }
-  
-  console.log('Kin-repository linking process completed.');
-  console.log('Summary:');
-  results.forEach(result => {
-    if (result.status === 'error') {
-      console.log(`- ${result.kin_id}: ERROR - ${result.error}`);
-    } else {
-      console.log(`- ${result.kin_id}: Successfully linked to ${result.github_url}`);
-    }
-  });
-}
+// Execute the script for a single kin
+console.log(`Starting repository linking process for kin: ${kinId}`);
+console.log(`Target repository: ${GITHUB_REPO_URL}`);
 
-// Execute the script
-linkAllKins().catch(error => {
-  console.error('Script execution failed:', error);
-  process.exit(1);
-});
+linkKinToRepo(kinId)
+  .then(result => {
+    console.log('Process completed.');
+    if (result.status === 'error') {
+      console.log(`ERROR: ${result.error}`);
+      process.exit(1);
+    } else {
+      console.log(`SUCCESS: Linked ${result.kin_id} to ${result.github_url}`);
+      process.exit(0);
+    }
+  })
+  .catch(error => {
+    console.error('Script execution failed:', error);
+    process.exit(1);
+  });
