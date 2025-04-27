@@ -162,17 +162,19 @@ body {
   max-width: 80%;
   border: 1px solid rgba(0, 0, 0, 0.05); /* Slightly more visible border */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03); /* Slightly more visible shadow */
-  background-color: white; /* Default to white */
+  background-color: white !important; /* Force white background */
 }
 
 .user-message {
-  background-color: var(--chat-user-bg);
+  background-color: white !important; /* Force white background */
   margin-left: auto;
   border-top-right-radius: 0.25rem !important;
+  border-left: none !important; /* Remove left border for user messages */
+  border: 1px solid rgba(0, 0, 0, 0.08); /* Slightly darker border */
 }
 
 .system-message {
-  background-color: white; /* Default to white */
+  background-color: white !important; /* Force white background */
   border-left: 3px solid var(--border-color); /* Add a left border */
   margin-right: auto;
   border-top-left-radius: 0.25rem !important;
@@ -181,10 +183,15 @@ body {
 .dark .message {
   border: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-color: #1a1a1a !important; /* Dark background */
+}
+
+.dark .user-message {
+  background-color: #1a1a1a !important;
 }
 
 .dark .system-message {
-  background-color: var(--chat-system-bg);
+  background-color: #1a1a1a !important;
   border-left: 3px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -391,91 +398,85 @@ input:checked + .toggle-slider:before {
 }
 
 /* Update model-specific message classes to use very subtle background colors and left borders */
-.model-claude_3_7_sonnet_latest {
-  background-color: var(--claude-3-7-sonnet-color);
-  border-left: 3px solid rgba(100, 149, 237, 0.3); /* Light cornflower blue */
+.model-claude_3_7_sonnet_latest,
+.model-claude_3_7_sonnet_20240307 {
+  background-color: white !important;
+  border-left: 3px solid rgba(100, 149, 237, 0.3) !important; /* Light cornflower blue */
 }
 
-.model-claude_3_5_sonnet_20240620 {
-  background-color: var(--claude-3-5-sonnet-color);
-  border-left: 3px solid rgba(144, 238, 144, 0.3); /* Light green */
+.model-claude_3_5_sonnet_20240620,
+.model-claude_3_5_sonnet_latest {
+  background-color: white !important;
+  border-left: 3px solid rgba(144, 238, 144, 0.3) !important; /* Light green */
 }
 
-.model-claude_3_opus_20240229 {
-  background-color: var(--claude-3-opus-color);
-  border-left: 3px solid rgba(255, 218, 185, 0.3); /* Light peach */
+.model-claude_3_opus_20240229,
+.model-claude_3_opus_latest {
+  background-color: white !important;
+  border-left: 3px solid rgba(255, 218, 185, 0.3) !important; /* Light peach */
 }
 
-.model-o4_mini_2025_04_16 {
-  background-color: var(--claude-3-haiku-color);
-  border-left: 3px solid rgba(230, 230, 250, 0.3); /* Light lavender */
+.model-o4_mini_2025_04_16,
+.model-gpt_4o {
+  background-color: white !important;
+  border-left: 3px solid rgba(230, 230, 250, 0.3) !important; /* Light lavender */
 }
 
-.model-gpt_4_1_2025_04_14 {
-  background-color: var(--gpt-4o-color);
-  border-left: 3px solid rgba(255, 182, 193, 0.3); /* Light pink */
+.model-gpt_4_1_2025_04_14,
+.model-gpt_4 {
+  background-color: white !important;
+  border-left: 3px solid rgba(255, 182, 193, 0.3) !important; /* Light pink */
 }
 
 .model-gpt_3_5_turbo {
-  background-color: var(--gpt-4-turbo-color);
-  border-left: 3px solid rgba(173, 255, 47, 0.3); /* Light green-yellow */
-}
-
-/* Additional classes for handling model IDs with different formats */
-.model-claude_3_7_sonnet_latest {
-  background-color: var(--claude-3-7-sonnet-color);
-  border-left: 3px solid rgba(100, 149, 237, 0.3); /* Light cornflower blue */
-}
-
-.model-claude_3_5_sonnet_latest {
-  background-color: var(--claude-3-5-sonnet-color);
-  border-left: 3px solid rgba(144, 238, 144, 0.3); /* Light green */
-}
-
-.model-claude_3_opus_latest {
-  background-color: var(--claude-3-opus-color);
-  border-left: 3px solid rgba(255, 218, 185, 0.3); /* Light peach */
+  background-color: white !important;
+  border-left: 3px solid rgba(173, 255, 47, 0.3) !important; /* Light green-yellow */
 }
 
 .model-default {
-  background-color: var(--default-model-color);
-  border-left: 3px solid rgba(200, 200, 200, 0.3); /* Light grey */
+  background-color: white !important;
+  border-left: 3px solid rgba(200, 200, 200, 0.3) !important; /* Light grey */
 }
 
 /* Dark mode model-specific message classes */
-.dark .model-claude_3_7_sonnet_latest {
-  background-color: var(--claude-3-7-sonnet-color);
-  border-left: 3px solid rgba(100, 149, 237, 0.2);
+.dark .model-claude_3_7_sonnet_latest,
+.dark .model-claude_3_7_sonnet_20240307 {
+  background-color: #1a1a1a !important;
+  border-left: 3px solid rgba(100, 149, 237, 0.2) !important;
 }
 
-.dark .model-claude_3_5_sonnet_20240620 {
-  background-color: var(--claude-3-5-sonnet-color);
-  border-left: 3px solid rgba(144, 238, 144, 0.2);
+.dark .model-claude_3_5_sonnet_20240620,
+.dark .model-claude_3_5_sonnet_latest {
+  background-color: #1a1a1a !important;
+  border-left: 3px solid rgba(144, 238, 144, 0.2) !important;
 }
 
-.dark .model-claude_3_opus_20240229 {
-  background-color: var(--claude-3-opus-color);
-  border-left: 3px solid rgba(255, 218, 185, 0.2);
+.dark .model-claude_3_opus_20240229,
+.dark .model-claude_3_opus_latest {
+  background-color: #1a1a1a !important;
+  border-left: 3px solid rgba(255, 218, 185, 0.2) !important;
 }
 
-.dark .model-o4_mini_2025_04_16 {
-  background-color: var(--claude-3-haiku-color);
-  border-left: 3px solid rgba(230, 230, 250, 0.2);
+.dark .model-o4_mini_2025_04_16,
+.dark .model-gpt_4o {
+  background-color: #1a1a1a !important;
+  border-left: 3px solid rgba(230, 230, 250, 0.2) !important;
 }
 
-.dark .model-gpt_4_1_2025_04_14 {
-  background-color: var(--gpt-4o-color);
-  border-left: 3px solid rgba(255, 182, 193, 0.2);
+.dark .model-gpt_4_1_2025_04_14,
+.dark .model-gpt_4 {
+  background-color: #1a1a1a !important;
+  border-left: 3px solid rgba(255, 182, 193, 0.2) !important;
 }
 
 .dark .model-gpt_3_5_turbo {
-  background-color: var(--gpt-4-turbo-color);
-  border-left: 3px solid rgba(173, 255, 47, 0.2);
+  background-color: #1a1a1a !important;
+  border-left: 3px solid rgba(173, 255, 47, 0.2) !important;
 }
 
 .dark .model-default {
-  background-color: var(--default-model-color);
-  border-left: 3px solid rgba(200, 200, 200, 0.2);
+  background-color: #1a1a1a !important;
+  border-left: 3px solid rgba(200, 200, 200, 0.2) !important;
 }
 
 /* Markdown content styling */
