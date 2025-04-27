@@ -416,7 +416,7 @@ input:checked + .toggle-slider:before {
   border-left: 3px solid rgba(255, 218, 185, 0.3) !important; /* Light peach */
 }
 
-.model-o4_mini,
+.model-o4_mini_2025_04_16,
 .model-gpt_4o {
   background-color: white !important;
   border-left: 3px solid rgba(230, 230, 250, 0.3) !important; /* Light lavender */
