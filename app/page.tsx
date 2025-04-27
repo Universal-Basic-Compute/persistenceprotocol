@@ -831,7 +831,7 @@ export default function Home() {
   }
 
   return (
-    <>
+    <div className="app-container">
       {/* Menu Toggle Button */}
       <button 
         className="menu-toggle" 
@@ -1165,6 +1165,6 @@ export default function Home() {
           ))}
         </div>
       </div>
-    </>
+    </div>
   );
 }
